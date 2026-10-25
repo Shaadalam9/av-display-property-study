@@ -1,0 +1,9 @@
+{
+  "_comment": "Driving situations used as stimuli. Each scene needs stimuli/<scene id>/baseline.mp4 plus <property id>_low.mp4 and <property id>_high.mp4 for every screened-in property.",
+  "scenes": [
+    {"id": "pedestrian_crossing", "name": "Pedestrian crossing"},
+    {"id": "intersection_turn", "name": "Turn at an intersection"},
+    {"id": "braking_in_traffic", "name": "Braking behind traffic"},
+    {"id": "unexpected_obstacle", "name": "Unexpected obstacle"}
+  ]
+}

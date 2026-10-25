@@ -1,0 +1,34 @@
+{
+  "name": "av-display-property-study",
+  "version": "0.1.0",
+  "description": "Crowdsourced study of which visual properties of AV explanation displays matter to passengers.",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shaadalam9/av-display-property-study.git"
+  },
+  "author": "Md Shadab Alam",
+  "license": "MIT",
+  "dependencies": {
+    "@jspsych/plugin-browser-check": "2.1.0",
+    "@jspsych/plugin-call-function": "2.1.0",
+    "@jspsych/plugin-fullscreen": "2.1.0",
+    "@jspsych/plugin-instructions": "2.1.0",
+    "@jspsych/plugin-maxdiff": "2.1.0",
+    "@jspsych/plugin-preload": "2.1.0",
+    "@jspsych/plugin-survey-html-form": "2.1.0",
+    "@jspsych/plugin-survey-multi-choice": "2.2.1",
+    "@jspsych/plugin-survey-text": "2.1.1",
+    "@jspsych/plugin-video-button-response": "2.1.1",
+    "express": "4.22.3",
+    "jspsych": "8.3.0",
+    "mongoose": "9.11.1"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

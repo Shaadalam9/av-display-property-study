@@ -1,0 +1,25 @@
+# Instance specific files: local settings and secrets.
+config
+secret
+
+# Participant data and analysis output (personal data) never go into git.
+data/
+_output/
+
+# Stimulus videos are large; share them separately.
+public/stimuli/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+.DS_Store

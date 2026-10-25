@@ -1,0 +1,20 @@
+[project]
+name = "av-display-property-study"
+version = "0.1.0"
+description = "Study to select which visual properties of AV explanation displays to personalise"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.2",
+    "pandas>=2.2",
+    "scipy>=1.14",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

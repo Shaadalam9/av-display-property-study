@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Study finished</title>
+    <link href="css/experiment.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="finish">
+      <h1>Study finished</h1>
+      <p>You have now completed the study. Thank you for your participation!</p>
+      <p>Your completion code is:</p>
+      <p><span id="code" class="code"></span></p>
+      <p>Copy this code into the crowdsourcing platform to receive your payment, then close this tab.</p>
+    </div>
+    <script>
+      var code = new URLSearchParams(window.location.search).get('work') || '';
+      document.getElementById('code').textContent = code;
+    </script>
+  </body>
+</html>
