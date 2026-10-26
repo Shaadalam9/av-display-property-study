@@ -6,7 +6,7 @@ Verification note: items marked **[full text read]** were checked against the pa
 ## Q1. Which properties of a planned-path / trajectory overlay have been studied, at which levels, and with what effects?
 
 ### Takeaway
-Few papers vary path properties one at a time. The best-controlled evidence comes from the Ulm group (Colley, Rukzio, Jansen). Those papers vary: presence of the ego path (on/off), shape/width (single line vs double line at vehicle-edge width vs Bézier cone), colour gradient (blue-to-red certainty) vs none, transparency/fade vs none, and, in OptiCarVis, continuous visibility, alpha (0.1–1) and size (0.1–0.6). Effects on trust from simply showing the ego path are inconsistent: one study found lower trust and a later one found higher trust. Shape, colour and transparency had no effect on trust, workload or perceived safety, but they did affect the SART "understanding" subscale. No study found here varied path length/look-ahead horizon, animation of the path or carpet-vs-line style one at a time.
+Few papers vary path properties one at a time. The best-controlled evidence comes from the Ulm group (Colley, Rukzio, Jansen). Those papers vary: presence of the ego path (on/off), shape/width (single line vs double line at vehicle-edge width vs Bézier cone), colour gradient (blue-to-red certainty) vs none, transparency/fade vs none, and, in Jansen et al. (2025), continuous visibility, alpha (0.1–1) and size (0.1–0.6). Effects on trust from simply showing the ego path are inconsistent: one study found lower trust and a later one found higher trust. Shape, colour and transparency had no effect on trust, workload or perceived safety, but they did affect the SART "understanding" subscale. No study found here varied path length/look-ahead horizon, animation of the path or carpet-vs-line style one at a time.
 
 ### Cited Findings
 
@@ -24,7 +24,7 @@ Few papers vary path properties one at a time. The best-controlled evidence come
   - SART Understanding was higher with the ego trajectory (M=14.57 vs 13.76; F(1,234)=4.07, p=0.045). "Clarity of next actions" was also higher with it (M=5.10 vs 4.90; F(1,234)=5.62, p=0.019). — [Colley et al. 2023](https://doi.org/10.1145/3631408)
   - Mental workload showed no significant effect. Perceived safety was borderline (p=0.05). Other vehicles' predicted trajectories improved perceived longitudinal and lateral control. — [Colley et al. 2023](https://doi.org/10.1145/3631408)
   - Open feedback: one participant said the colour-coded uncertainty on the ego path "made them doubt" the AV's ability. The authors note the display might make some users "nervous". — [Colley et al. 2023](https://doi.org/10.1145/3631408)
-- **Conflict:** across the two Ulm studies, showing the ego path lowered trust in one (2022, arrows plus a gradient in a busy multi-layer scene) and raised it in the other (2023, a coloured line). OptiCarVis summarises the earlier work as "Visualizing trajectory planning can boost trust but may raise cognitive load". — [Jansen et al. 2025, arXiv HTML](https://arxiv.org/html/2501.06757)
+- **Conflict:** across the two Ulm studies, showing the ego path lowered trust in one (2022, arrows plus a gradient in a busy multi-layer scene) and raised it in the other (2023, a coloured line). Jansen et al. (2025) summarises the earlier work as "Visualizing trajectory planning can boost trust but may raise cognitive load". — [Jansen et al. 2025, arXiv HTML](https://arxiv.org/html/2501.06757)
 
 **Shape / width (line vs vehicle-width double line vs cone), colour, transparency**
 - Colley et al. 2023, Study 1: online, video-based Unity simulation, N=280. It used a 3×2×2 between-subjects design plus a baseline (13 conditions). Factors were shape (line / double line marking the vehicle edges / Bézier cone), colour (blue near the car = certain to red at the end = uncertain, vs no colour) and transparency (solid fading out with distance, vs none). The authors dropped size as a variable because internal tests showed it "quickly led to visual clutter". **[full text read]** — [Colley et al. 2023](https://doi.org/10.1145/3631408)
@@ -36,7 +36,7 @@ Few papers vary path properties one at a time. The best-controlled evidence come
 - Kunze, Summerskill, Marshall & Filtness (2018), "Augmented Reality Displays for Communicating Uncertainty Information in Automated Driving", AutomotiveUI '18, pp. 164–175, DOI 10.1145/3239060.3239074. N=46 participants sorted and ranked 11 visual variables for an AR uncertainty display. Colour- and animation-based variables, especially **hue**, conveyed an urgency ordering most clearly and were well received. **[abstract/metadata only]**: the full PDF was blocked, so I could not confirm which AR element (path vs other) carried the variables. — [Loughborough repository](https://repository.lboro.ac.uk/articles/Augmented_reality_displays_for_communicating_uncertainty_information_in_automated_driving/9338876/files/16947521.pdf); [IGI journal version 2019](https://www.igi-global.com/article/function-specific-uncertainty-communication-in-automated-driving/231846)
 
 **Visibility, opacity (alpha) and size as continuous parameters (personalised via Bayesian optimisation)**
-- Jansen, Colley, Krauß, Hirschle & Rukzio (2025), "OptiCarVis: Improving Automated Vehicle Functionality Visualizations Using Bayesian Optimization to Enhance User Experience", CHI '25 (honourable mention). arXiv 2501.06757. **[full text read, arXiv HTML; figures with final values not readable]**
+- Jansen, Colley, Krauß, Hirschle & Rukzio (2025), CHI '25 (honourable mention). arXiv 2501.06757. **[full text read, arXiv HTML; figures with final values not readable]**
   - Parameters, normalised: other road users' trajectory visibility (boolean via v<0.5 = off), alpha [0.1, 1], size [0.1, 0.6]; ego trajectory visibility, alpha [0.1, 1], size [0.1, 0.6]. There were also semantic-segmentation visibility/alpha and pedestrian-intention visibility/size. Colour was deliberately **not** a parameter ("avoided RGB coloring as parameters"). Length, style and conformality were also not parameters. — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
   - Setup: online, between-subjects, N=117 (Prolific, US). There were six conditions: no visualization, expert design, and several human-in-the-loop MOBO variants. Participants watched a Unity city ride (33 s per iteration; 3 min final route) as an AV passenger. — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
   - Results: the MOBO conditions raised trust (e.g., C4 M=3.94 vs expert design C2 M=3.04), perceived safety and predictability. They lowered cognitive load (C4 M=6.71 vs C2 M=9.76), with no change in acceptance or aesthetics. Results are **not** broken down by the trajectory parameters. In the HITL conditions "many parameters were mostly turned off (v<0.5)". — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
@@ -61,16 +61,16 @@ Few papers vary path properties one at a time. The best-controlled evidence come
 - A 2024 online randomised video experiment ("Shared intention and shared awareness for conditional automated driving") showed a curved HUD path for the planned route, with colour distinguishing braking from coasting, plus object-recognition boxes. **[UNVERIFIED: authors, journal, N and results; ScienceDirect returned 403. Only the search-engine summary was seen.]** — [ScienceDirect](https://www.sciencedirect.com/org/science/article/pii/S1538958824001772)
 
 ### Inferences
-- The best-supported levers for a path overlay are **visibility, opacity, width/size and colour**. These are exactly the parameters OptiCarVis exposes (minus colour), and they have defined, implementable ranges (alpha 0.1–1, size 0.1–0.6 in normalised units).
+- The best-supported levers for a path overlay are **visibility, opacity, width/size and colour**. These are exactly the parameters Jansen et al. (2025) exposes (minus colour), and they have defined, implementable ranges (alpha 0.1–1, size 0.1–0.6 in normalised units).
 - Colley 2023 found that shape, colour and transparency had no effect on trust, workload or safety, and mainly affected understanding. This suggests these properties are low-risk to personalise: preferences can vary without large safety or workload penalties.
 - The sign of the trust effect of simply showing the ego path seems to depend on the rendering and context (arrows and gradient in a cluttered multi-layer scene vs a clean line). This makes visibility/opacity of the path a sensible personalised property rather than a fixed design choice.
-- Transparency used as an *uncertainty encoding* hurt understanding. That is different from a global opacity setting chosen by the user, which OptiCarVis treats as a preference.
+- Transparency used as an *uncertainty encoding* hurt understanding. That is different from a global opacity setting chosen by the user, which Jansen et al. (2025) treats as a preference.
 
 ### Gaps
 - No study found here systematically varied **path length / look-ahead time horizon** as an independent variable. Colley 2023 scaled length with speed, and two participants said it was too short.
 - No isolated test was found of **animation/motion of the path** (e.g., flowing chevrons vs static). Kunze 2018 suggests animation works well for uncertainty, but I did not verify that it was applied to a path.
 - No head-to-head comparison was found of **carpet/lane-wide band vs thin line vs chevrons vs ghost car** for occupants. Only line vs double line vs cone was tested (Colley 2023).
-- Final per-participant OptiCarVis values for trajectory parameters are only in figures (not machine-readable). I could not extract the distributions.
+- Final per-participant Jansen et al. (2025) values for trajectory parameters are only in figures (not machine-readable). I could not extract the distributions.
 - Detjen et al. 2021 full text (N, exact measures) and the 2024 "shared intention" study could not be accessed.
 
 ## Q2. Which manoeuvre/intention cues (icons, text, announcements) have been studied, and how do they compare to path overlays?
@@ -86,7 +86,7 @@ Discrete intention cues (turn indicators, icons, maneuver queues, spoken or visu
 - **Route indication on an AR HUD:** von Sawitzky, Wintersberger, Riener & Gabbard (2019), "Increasing trust in fully automated driving: route indication on an augmented reality head-up display", PerDis '19. **[UNVERIFIED: levels and results not found; title and authors only, from a dblp/library listing]** — [dblp](https://dblp.org/pid/204/6331)
 - **Why/how messages:** Koo et al. (2015) found that "why" (explanatory) information gave the highest trust, while "how" information could cause cognitive overload; combining them gave the safest driving. These were mainly verbal messages, not path graphics. **[secondary, via Colley et al. 2022; primary not read]** — [Colley et al. 2022](https://doi.org/10.1145/3534609)
 - **Modality of intent announcements (passenger):** a UMass study with 36 rear-seat passengers in a simulator used auditory, visual or multimodal interfaces that announced perception and intent 5 s before each maneuver, including a lane change. Trust rose pre-to-post in all conditions, and multimodal beat visual-only on trust and perceived transparency. **[UNVERIFIED: authors/venue unclear; appears to be a conference abstract/report]** — [UMass NEUTC](https://www.umass.edu/neutc/media/635/download)
-- **Abstract vs futuristic display:** Colley et al. (2021b), cited in OptiCarVis, report that an abstract HUD view "can sufficiently convey critical information". This is not trajectory-specific. **[secondary]** — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
+- **Abstract vs futuristic display:** Colley et al. (2021b), cited in Jansen et al. (2025), report that an abstract HUD view "can sufficiently convey critical information". This is not trajectory-specific. **[secondary]** — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
 
 ### Inferences
 - For a crowdsourced personalisation study, a **"path overlay vs/plus discrete maneuver cue (icon or text)"** property is supported by participants explicitly asking for turning/stopping cues on top of a path. It is also supported by both icon-style and AR-path concepts beating baselines.
@@ -105,14 +105,14 @@ Most path studies are online and video-based (N≈117–280, Prolific) and take 
 **Participant samples (summary)**
 - Colley 2022: online video, front-passenger view, N=216. — [DOI](https://doi.org/10.1145/3534609)
 - Colley 2023: online Unity video, N=280, plus online real-world video, N=238. — [DOI](https://doi.org/10.1145/3631408)
-- OptiCarVis: online interactive Unity ride, N=117, passenger. — [arXiv](https://arxiv.org/html/2501.06757)
-- Multi-session OptiCarVis: online, N=74, three days. — [arXiv](https://arxiv.org/html/2607.28552)
+- Jansen et al. (2025): online interactive Unity ride, N=117, passenger. — [arXiv](https://arxiv.org/html/2501.06757)
+- Colley et al. 2026 (multi-session): online, N=74, three days. — [arXiv](https://arxiv.org/html/2607.28552)
 - Häuslschmid 2017: lab with real driving footage on a HUD, N=30. — [PDF](https://www.medien.ifi.lmu.de/pubdb/publications/pub/haeuslschmid2017iui/haeuslschmid2017iui.pdf)
 - Oliveira 2020: real AV in an indoor arena, N=25. — [Coventry](https://pureportal.coventry.ac.uk/en/publications/the-influence-of-system-transparency-on-trust-evaluating-interfac/)
 - Currano et al. (2021), "Little Road Driving HUD: Heads-Up Display Complexity Influences Drivers' Perceptions of Automated Vehicles", CHI '21, DOI 10.1145/3411764.3445575: online, N=298, three HUD complexity conditions (none / minimal / complex). Path content of the HUD **[UNVERIFIED]**. — [unpaywall/DOI](https://unpaywall.org/10.1145%2F3411764.3445575)
 
 **Individual differences (support for personalisation)**
-- OptiCarVis expert study: SD>0.18 (diverse views) for **trajectory alpha** (SD 0.26) and **ego trajectory visibility** (SD 0.26); trajectory size had SD≤0.18 ("fair alignment"). HITL conditions had wider intervals than the expert design, and "individual differences persist". — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
+- Jansen et al. 2025 expert study: SD>0.18 (diverse views) for **trajectory alpha** (SD 0.26) and **ego trajectory visibility** (SD 0.26); trajectory size had SD≤0.18 ("fair alignment"). HITL conditions had wider intervals than the expert design, and "individual differences persist". — [Jansen et al. 2025](https://arxiv.org/html/2501.06757)
 - Multi-session: dispersion of final designs between participants "remained substantial across days rather than collapsing to a single solution". — [Colley et al. 2026 arXiv](https://arxiv.org/html/2607.28552)
 - Häuslschmid 2017: "participants did not agree on the need of a visualization". Some felt safer with one and others without. The authors conclude "a one-fits-all visualization might not be sufficient". Opinions on the same driving style also split between aggressive and defensive. — [Häuslschmid et al. 2017](https://www.medien.ifi.lmu.de/pubdb/publications/pub/haeuslschmid2017iui/haeuslschmid2017iui.pdf)
 - Currano 2021: effects depended on scene dynamics and participants' self-reported driving style, and the authors argue the HUD should adapt to both. Including a HUD *reduced* SA compared with no HUD. **[abstract + secondary via Colley 2022]** — [Colley et al. 2022](https://doi.org/10.1145/3534609); [DOI](https://doi.org/10.1145/3411764.3445575)
@@ -128,13 +128,13 @@ Most path studies are online and video-based (N≈117–280, Prolific) and take 
 ### Inferences
 - Strongest candidates for preference-based personalisation in the path/intention family:
   - **(a) path visibility/opacity**: the expert SD was high, the trust effects were inconsistent, and users split on wanting it at all.
-  - **(b) path width/size**: it is in OptiCarVis, with less disagreement but still variable.
-  - **(c) colour/uncertainty colouring**: some users were reassured and others worried. Note it was excluded from OptiCarVis for RGB-parameterisation reasons.
+  - **(b) path width/size**: it is in Jansen et al. (2025), with less disagreement but still variable.
+  - **(c) colour/uncertainty colouring**: some users were reassured and others worried. Note it was excluded from Jansen et al. (2025) for RGB-parameterisation reasons.
   - **(d) look-ahead length**: untested as an independent variable, with some "too short" complaints.
 - Properties with a near-consensus (line vs double line/cone; conformal vs planar; transparency as an uncertainty code) could be fixed rather than personalised.
-- Because OptiCarVis already personalised trajectory alpha/size/visibility with MOBO, a new study adding **length/horizon** and **style (line vs chevrons vs band)** would extend rather than replicate it.
+- Because Jansen et al. (2025) already personalised trajectory alpha/size/visibility with MOBO, a new study adding **length/horizon** and **style (line vs chevrons vs band)** would extend rather than replicate it.
 
 ### Gaps
-- No study was found that reports the *distribution* of preferred path opacity/width/length across individuals in numbers. The OptiCarVis figures were not readable in text.
+- No study was found that reports the *distribution* of preferred path opacity/width/length across individuals in numbers. The Jansen et al. (2025) figures were not readable in text.
 - Driver-vs-passenger differences in path preferences were not directly compared in any study found. Most online studies take a passenger view, and Detjen 2021 is a take-over (driver) context.
 - A claim from a search summary that an "AR for passengers" simulator study (N=18) found trust depends on driving decisions and road-user info more than on location-specific info could not be traced to a primary source **[UNVERIFIED]**. — [search summary only; possibly from the i-com review](https://www.degruyterbrill.com/document/doi/10.1515/icom-2021-0029/html?lang=en)

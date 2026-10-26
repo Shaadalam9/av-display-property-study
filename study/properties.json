@@ -1,7 +1,7 @@
 {
   "_comment": "Candidate display properties from the literature review (reports/AV display property literature.md). screened_in = shown to participants. render.low / render.high are the clip renderer settings (avprops/clip_render.py Style) that make the low and high clip; everything else stays at the baseline. A property with no render block cannot be made as a clip and must stay screened out.",
   "baseline": {
-    "_comment": "Neutral display every clip starts from: OptiCarVis expert means where available (Jansen et al., CHI 2025), explanation shown 3 s before the event (Du et al. 2019).",
+    "_comment": "Neutral display every clip starts from: expert means from Jansen et al. (CHI 2025) where available, explanation shown 3 s before the event (Du et al. 2019).",
     "show_when": "needed",
     "lead_time_s": 3.0,
     "fade_s": 0.5
@@ -12,7 +12,7 @@
      "source": "Colley et al. 2022 (IMWUT, 10.1145/3534609); Colley et al. 2023 (IMWUT, 10.1145/3631408); Jansen et al. 2025 (CHI, 10.1145/3706598.3713514)", "screened_in": true, "screening_note": "Trust effect flips sign across studies; experts disagreed most (SD 0.26)."},
     {"id": "path_width", "element": "Planned path", "name": "Path width", "description": "How wide the planned path is drawn.", "low": "Thin line", "high": "Car-wide band",
      "render": {"low": {"path_half_width_m": 0.1}, "high": {"path_half_width_m": 0.9}},
-     "source": "Jansen et al. 2025 (CHI); Colley et al. 2023 (IMWUT)", "screened_in": true, "screening_note": "OptiCarVis range exists; clutter trade-off."},
+     "source": "Jansen et al. 2025 (CHI); Colley et al. 2023 (IMWUT)", "screened_in": true, "screening_note": "A tested range exists (Jansen et al. 2025); clutter trade-off."},
     {"id": "path_length", "element": "Planned path", "name": "Path length", "description": "How far ahead the planned path is shown.", "low": "Short (about 8 m)", "high": "Long (about 35 m)",
      "render": {"low": {"path_length_m": 8.0}, "high": {"path_length_m": 35.0}},
      "source": "Gap: never varied; 'too short' complaints in Colley et al. 2023 (IMWUT)", "screened_in": true, "screening_note": "Untested gap."},
@@ -36,7 +36,7 @@
      "source": "Tran et al. 2025 (ICAT-EGVE, abstract only); Colley et al. 2020", "screened_in": true, "screening_note": "Scenario-dependent best style; categorical, screen only."},
     {"id": "class_colours", "element": "Road users", "name": "Colour by road-user type", "description": "Whether pedestrians and vehicles are highlighted in different colours.", "low": "One colour for all", "high": "Different colour per type",
      "render": {"low": {"highlight_opacity": 0.5, "highlight_scope": "all", "class_colours": false}, "high": {"highlight_opacity": 0.5, "highlight_scope": "all", "class_colours": true}},
-     "source": "Jansen et al. 2025 (TR-F) 'color-coded chaos' complaints; OptiCarVis avoided colour", "screened_in": true, "screening_note": "Both clips show all road users at a stronger highlight (0.5) so the colours are visible; they differ only in colour."},
+     "source": "Jansen et al. 2025 (TR-F) 'color-coded chaos' complaints; Jansen et al. 2025 (CHI) left colour out", "screened_in": true, "screening_note": "Both clips show all road users at a stronger highlight (0.5) so the colours are visible; they differ only in colour."},
     {"id": "marker_size", "element": "Road users", "name": "Pedestrian marker size", "description": "Size of the marker above pedestrians.", "low": "Small", "high": "Large",
      "render": {"low": {"marker_size": 0.1}, "high": {"marker_size": 0.2}},
      "source": "Jansen et al. 2025 (CHI) range 0.1-0.2; Colley et al. 2020", "screened_in": true, "screening_note": "Preference diversity in optimised designs."},

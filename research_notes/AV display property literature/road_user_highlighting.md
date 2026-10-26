@@ -1,6 +1,6 @@
 # Highlighting detected road users and hazards in in-vehicle AV displays: visual properties, levels tested, effects
 
-Scope: AR head-up displays, simulated AR windshields and central-screen HMIs that highlight pedestrians, cyclists, vehicles and other hazards for AV occupants or drivers. Research done 2026-10-26. Full texts read (PDF) for: Colley et al. 2020, 2021, 2022; Jansen et al. 2025 (OptiCarVis, arXiv HTML); Jansen et al. 2025 (TRF); Goodge et al. 2026. All other entries are based on abstracts, publisher or index pages, or citations in other papers, and are marked that way.
+Scope: AR head-up displays, simulated AR windshields and central-screen HMIs that highlight pedestrians, cyclists, vehicles and other hazards for AV occupants or drivers. Research done 2026-10-26. Full texts read (PDF) for: Colley et al. 2020, 2021, 2022; Jansen et al. 2025 (CHI, arXiv HTML); Jansen et al. 2025 (TRF); Goodge et al. 2026. All other entries are based on abstracts, publisher or index pages, or citations in other papers, and are marked that way.
 
 ## Q1. Which highlighting properties have been studied, and at what levels?
 
@@ -22,7 +22,7 @@ The properties that have been varied in controlled studies are: display location
 - Colley et al. 2022 chose to highlight "all driving task-relevant traffic objects" rather than use light bands. They argued that leaving an object unhighlighted could lead users to assume it had not been detected. This is a design rationale, not a tested result. — [Colley et al. 2022](https://doi.org/10.1145/3534609)
 
 **Highlight transparency (alpha) and visibility per element**
-- Jansen, Colley, Krauß, Hirschle, Rukzio (2025), "OptiCarVis: Improving Automated Vehicle Functionality Visualizations Using Bayesian Optimization to Enhance User Experience", CHI '25, doi:10.1145/3706598.3713514. Online between-subjects study, N=117 (Prolific, US), Unity simulation with an AR windshield and an SAE L4 ride. Sixteen parameters were optimised with multi-objective Bayesian optimisation, including:
+- Jansen, Colley, Krauß, Hirschle, Rukzio (2025), CHI '25, doi:10.1145/3706598.3713514. Online between-subjects study, N=117 (Prolific, US), Unity simulation with an AR windshield and an SAE L4 ride. Sixteen parameters were optimised with multi-objective Bayesian optimisation, including:
   - semantic segmentation (object highlighting): on/off, and alpha 0.1–1;
   - pedestrian intention marker: on/off, and size 0.1–0.2;
   - other road users' trajectory: on/off, alpha 0.1–1, size 0.1–0.6;
@@ -30,7 +30,7 @@ The properties that have been varied in controlled studies are: display location
   - also the ego trajectory, the CAD-covered area and the vehicle-status HUD.
 
   RGB colour, style and position were deliberately not parameterised. Objectives: perceived safety, trust, predictability, acceptance and aesthetics, plus cognitive load (NASA-TLX mental demand) to minimise. — [Jansen et al. 2025, CHI (arXiv)](https://arxiv.org/html/2501.06757v3)
-- OptiCarVis expert design (8 experts, averaged): segmentation highlighting was on in 7 of 8 designs, with alpha mean 0.23 (SD 0.16, range 0.10–0.49). In the end-user custom-design condition, segmentation alpha "often had intervals above α=0.7", while the other conditions "hovered around α=0.5". — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
+- Jansen et al. 2025 expert design (8 experts, averaged): segmentation highlighting was on in 7 of 8 designs, with alpha mean 0.23 (SD 0.16, range 0.10–0.49). In the end-user custom-design condition, segmentation alpha "often had intervals above α=0.7", while the other conditions "hovered around α=0.5". — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
 
 **Highlight style (mask, outline, bounding box, spotlight, marker above the head)**
 - Tran, Peillard, Walsh, Moreau, Thomas (2025), "Trust and Safety in Autonomous Vehicles: Evaluating Contextual Visualizations for Highlighting, Prediction, and Anchoring", ICAT-EGVE 2025 (Eurographics), doi:10.2312/egve.20251351. Three online studies with prerecorded simulated driving videos. Study 1 compared six highlight types across five scenarios that varied in complexity and visibility. Effectiveness depended on the scenario: bounding boxes and spotlights worked better in occluded or ambiguous conditions. *Abstract only. The six types, N and effect sizes were not verified; the full text was blocked (403 / bot check).* — [Tran et al. 2025](https://diglib.eg.org/handle/10.2312/egve20251351); [HAL record](https://hal-hceres.archives-ouvertes.fr/LAB-STICC_INUIT/hal-05396377v1)
@@ -46,7 +46,7 @@ The properties that have been varied in controlled studies are: display location
 - Colley et al. 2020: two states (intention clear in purple / unclear in yellow) vs three states (crossing in blue / staying in baby-blue / unclear in yellow). AR with three states was preferred and had the lowest TLX. AR two states was not significantly worse in preference. — [Colley et al. 2020](https://doi.org/10.1145/3409120.3410648)
 
 **Marker size**
-- OptiCarVis pedestrian-intention marker size, range 0.1–0.2: expert mean 0.15 (SD 0.04). The optimisation conditions (C4–C6) "showed larger intervals, pointing to greater preference diversity". — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
+- Jansen et al. (2025) pedestrian-intention marker size, range 0.1–0.2: expert mean 0.15 (SD 0.04). The optimisation conditions (C4–C6) "showed larger intervals, pointing to greater preference diversity". — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
 
 **Distance and time-to-contact labels; anchoring**
 - Tran et al. 2025, Study 3: world-fixed time-to-contact displays significantly improved trust, perceived safety and object detectability compared with screen-fixed displays. *Abstract only.* — [Tran et al. 2025](https://diglib.eg.org/handle/10.2312/egve20251351)
@@ -68,12 +68,12 @@ The properties that have been varied in controlled studies are: display location
 - Lindemann, Lee, Rigoll (2018), "Catch My Drift: Elevating Situation Awareness for Highly Automated Driving with an Explanatory Windshield Display User Interface", Multimodal Technologies and Interaction 2(4):71; also ISMAR 2018. An explanatory windshield display, combining world-registered AR and screen-fixed elements to show perception and decisions, significantly improved SA (freeze-probe queries): a medium effect in clear weather and a large effect in poor visibility. *Bundle: perception highlighting was not isolated. Abstract only.* — [Lindemann et al. 2018, MTI](https://doi.org/10.3390/mti2040071)
 
 ### Inferences
-- Properties that have been parameterised as continuous or ordinal and that people disagree about: highlight alpha/opacity, per-class or per-element visibility (scope), and marker size. These map directly onto Bayesian-optimisation (BO) dimensions; OptiCarVis already treats them that way.
+- Properties that have been parameterised as continuous or ordinal and that people disagree about: highlight alpha/opacity, per-class or per-element visibility (scope), and marker size. These map directly onto Bayesian-optimisation (BO) dimensions; Jansen et al. (2025) already treats them that way.
 - Highlight style (mask vs outline vs box vs spotlight vs marker) is categorical. It has one comparative study (Tran et al. 2025), whose result is that the best style depends on the scenario. It could be a categorical BO dimension, or it could be fixed.
 - Urgency or risk colour coding has been studied for perceptual ordering (Kunze et al. 2018), not as a highlight property in an AV-occupant study. That is a gap.
 
 ### Gaps
-- No study I found varies the opacity of whole-object highlights as a controlled factor (outside the BO) with trust or SA outcomes. OptiCarVis reports alpha only as an optimisation outcome.
+- No study I found varies the opacity of whole-object highlights as a controlled factor (outside the BO) with trust or SA outcomes. Jansen et al. (2025) reports alpha only as an optimisation outcome.
 - No peer-reviewed study found that varies distance/TTC labels on/off for occupants (Tran et al. 2025 varies anchoring only), or highlight thickness, glow, or the "relevant-only vs all detected" contrast under the same rendering style.
 - Not verified, because full texts were blocked: the Tran et al. 2025 highlight types and N; the Kim & Gabbard 2019 design details; Currano et al. 2021 effect directions; Wintersberger et al. 2019/2020 object-selection data.
 - Schwarz & Fastenmeier (2017, Accident Analysis & Prevention), "Augmented reality warnings in vehicles: effects of modality and specificity", is commonly cited, but I could not locate it to verify, so it is not used.
@@ -107,7 +107,7 @@ Most evidence comes from online video or desktop-simulation studies with N of 15
   - Participants asked for adjustable detail ("It would be good to turn up or turn down the level of detail displayed").
 
   — [Jansen et al. 2025, TRF](https://doi.org/10.1016/j.trf.2025.05.013)
-- **OptiCarVis (N=117 online):** compared with the averaged expert design (C2), the BO-optimised designs (C4–C6) had:
+- **Jansen et al. 2025 (N=117 online):** compared with the averaged expert design (C2), the BO-optimised designs (C4–C6) had:
   - higher perceived safety (C4 M=1.32, C5 0.95, C6 0.74 vs C2 −0.25 and custom C3 −0.70);
   - higher trust (C4 3.94 and C5 3.95 vs C2 3.04);
   - lower cognitive load (6.12–6.72 vs 9.76 for C2 and 9.03 for C3);
@@ -120,7 +120,7 @@ Most evidence comes from online video or desktop-simulation studies with N of 15
 - **Weak evidence, noted for completeness:** Li et al. (2025), "From Black Box to Transparency: The Impact of Multi-Level Visualization on User Trust in Autonomous Driving", Sensors 25(21):6725, doi:10.3390/s25216725. CARLA simulator, N=29, three transparency levels (Level 2 adds an AR trajectory, LiDAR and segmentation views). It did not measure trust or SA with validated scales, and the abstract and results are internally inconsistent. Not recommended as evidence. — [Li et al. 2025](https://doi.org/10.3390/s25216725)
 
 ### Inferences
-- Across the Ulm studies, highlighting detection improves understanding and capability assessment more consistently than it changes trust. Trust gains appear mainly when the design is tuned (OptiCarVis) or over repeated exposure (TRF 2025).
+- Across the Ulm studies, highlighting detection improves understanding and capability assessment more consistently than it changes trust. Trust gains appear mainly when the design is tuned (Jansen et al. (2025)) or over repeated exposure (TRF 2025).
 - Clutter appears to come mostly from many hues, flicker and highlighting of irrelevant static objects (signposts, lights), not from highlighting pedestrians or vehicles per se. This suggests that scope and opacity are the levers that control it.
 - Takeover performance is essentially untested for perception-highlight properties in AV-occupant studies. The takeover-related evidence comes from driver hazard-cue studies in manual or conditional automation.
 
@@ -134,7 +134,7 @@ Most evidence comes from online video or desktop-simulation studies with N of 15
 Yes. There is direct evidence that people and experts disagree about highlight transparency, which elements to show, and marker size, and that feedback needs depend on individual trust. This supports personalising opacity/alpha, scope (which classes are highlighted) and marker size.
 
 ### Cited Findings
-- OptiCarVis: six of 16 parameters showed high variability among the 8 experts (SD > 0.18): other-road-user trajectory alpha (p6), ego-trajectory visibility (p8), CAD-covered-area visibility and alpha (p11, p12), occluded-cars visibility (p14), and status-HUD alpha (p16). Experts said personal preference drove their alpha choices, which made a single consensus design hard. The BO conditions showed "wider intervals than C3, indicating a broad range of preferences not captured in the initial custom design phase". Pedestrian-intention size in C4–C6 "showed larger intervals, pointing to greater preference diversity". The authors also note that "some participants preferred different parameter values as they became more familiar with the environment". — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
+- Jansen et al. (2025): six of 16 parameters showed high variability among the 8 experts (SD > 0.18): other-road-user trajectory alpha (p6), ego-trajectory visibility (p8), CAD-covered-area visibility and alpha (p11, p12), occluded-cars visibility (p14), and status-HUD alpha (p16). Experts said personal preference drove their alpha choices, which made a single consensus design hard. The BO conditions showed "wider intervals than C3, indicating a broad range of preferences not captured in the initial custom design phase". Pedestrian-intention size in C4–C6 "showed larger intervals, pointing to greater preference diversity". The authors also note that "some participants preferred different parameter values as they became more familiar with the environment". — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
 - Wintersberger et al. 2020 (N=56): participants chose freely which objects to augment, and the desire for feedback correlated inversely with situational trust. The authors conclude adaptive or personalised UIs are needed. *Abstract-level.* — [Wintersberger et al. 2020](https://doi.org/10.1145/3409120.3410659)
 - Jansen et al. 2025 (TRF): participants explicitly asked for adjustable level of detail. Colley et al. 2021 participants asked for "adjustable color settings", and a few wanted outlines instead of masks or no signposts. — [Jansen et al. 2025, TRF](https://doi.org/10.1016/j.trf.2025.05.013); [Colley et al. 2021](https://doi.org/10.1145/3411764.3445351)
 - Currano et al. 2021: driving style interacted with context and HUD complexity in effects on drivers' perceptions and SA. *Abstract-level.* — [Currano et al. 2021](https://doi.org/10.1145/3411764.3445575)
@@ -143,15 +143,15 @@ Yes. There is direct evidence that people and experts disagree about highlight t
 
 ### Inferences
 - Strongest candidates for personalisation, ranked by the evidence:
-  1. highlight opacity/alpha (OptiCarVis expert and user spread; custom designs differ from optimised ones);
+  1. highlight opacity/alpha (Jansen et al. 2025 expert and user spread; custom designs differ from optimised ones);
   2. scope, i.e. which classes or objects are highlighted: pedestrians only, plus vehicles, plus static objects (Wintersberger 2020; Jansen 2025 TRF ranking; Colley 2021 signpost objections);
-  3. marker size above pedestrians (OptiCarVis);
+  3. marker size above pedestrians (Jansen et al. (2025));
   4. highlight style (scenario-dependent; Tran et al. 2025; outline vs mask comments).
-- Colour (class hue) has some disagreement, with requests for adjustable colours and complaints about clashes with real-world colours. OptiCarVis deliberately did not optimise colour, so there is no quantitative spread data.
+- Colour (class hue) has some disagreement, with requests for adjustable colours and complaints about clashes with real-world colours. Jansen et al. (2025) deliberately did not optimise colour, so there is no quantitative spread data.
 
 ### Gaps
-- No study reports per-participant optimal values with a formal test of heterogeneity (e.g., a mixture or latent-class analysis). The OptiCarVis evidence is descriptive (interquartile intervals and expert SDs).
-- It is unclear whether preferred values are stable over sessions; OptiCarVis notes drift with familiarity, and the AutoUI '26 multi-session paper may address this but was not verified beyond the abstract.
+- No study reports per-participant optimal values with a formal test of heterogeneity (e.g., a mixture or latent-class analysis). The Jansen et al. (2025) evidence is descriptive (interquartile intervals and expert SDs).
+- It is unclear whether preferred values are stable over sessions; Jansen et al. (2025) notes drift with familiarity, and the AutoUI '26 multi-session paper may address this but was not verified beyond the abstract.
 
 ## Q4. Which properties showed no effect or a clear consensus?
 
@@ -163,7 +163,7 @@ There is consensus that AR, world-registered highlighting is preferred over tabl
 - Highlighting judged reasonable and necessary: pre-study reasonable M=6.06, necessary M=5.03 (7-point); real-video study 5.00 and 4.56. — [Colley et al. 2021](https://doi.org/10.1145/3411764.3445351)
 - Null effects of segmentation highlighting vs baseline on trust, mental load and SUS (N=41). — [Colley et al. 2021](https://doi.org/10.1145/3411764.3445351)
 - Null effects in IMWUT 2022: no significant overall SA effect; no pairwise differences in perceived safety; no effect on understandability or on clarity of the next AV action. — [Colley et al. 2022](https://doi.org/10.1145/3534609)
-- Null effects in OptiCarVis: acceptance (p=.073) and aesthetics (p=.277) did not differ between conditions. Most expert parameter SDs were ≤ 0.18, which the authors read as "a fair degree of alignment" for those parameters. Segmentation highlighting was turned on by 7 of 8 experts. — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
+- Null effects in Jansen et al. 2025: acceptance (p=.073) and aesthetics (p=.277) did not differ between conditions. Most expert parameter SDs were ≤ 0.18, which the authors read as "a fair degree of alignment" for those parameters. Segmentation highlighting was turned on by 7 of 8 experts. — [Jansen et al. 2025, CHI](https://arxiv.org/html/2501.06757v3)
 - Consensus against flicker and colour clutter: TRF 2025 themes (10/25 and 9/25 respondents); Colley et al. 2021 participant requests to exclude traffic lights and stop lights; TRF 2025 excluded unreliable bounding boxes to reduce flicker. — [Jansen et al. 2025, TRF](https://doi.org/10.1016/j.trf.2025.05.013); [Colley et al. 2021](https://doi.org/10.1145/3411764.3445351)
 - Rusch et al. 2013: AR hazard cues did not impair perception of non-target objects, and false alarms or misses did not impair responses (manual driving, N=27). This contrasts with later inattentional-blindness findings (Wang et al. 2022 as cited by Goodge et al. 2026; Goodge et al. 2026; de Oliveira Faria & Gabbard 2025 preprint). The attention-capture cost of highlighting is therefore contested, and appears to depend on concurrent task load. — [Rusch et al. 2013](https://stacks.cdc.gov/view/cdc/222186); [Goodge et al. 2026](https://doi.org/10.1145/3807942)
 

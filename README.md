@@ -3,7 +3,7 @@
 Crowdsourced study to decide, from the literature and from participants watching driving clips, which visual
 properties of an automated-vehicle (AV) explanation display are worth personalising. The result is a ranked set of
 about four properties, their usable ranges, and fixed values for everything else. A later preference optimisation
-(for example [OptiCarVis](https://github.com/Shaadalam9/opticarvis-global)) then tunes only the selected properties.
+then tunes only the selected properties.
 
 The code implements the study design: a literature review gives the candidate properties, a crowdsourced study
 measures which of them matter and which people disagree about, and pre-registered rules select the final set. The
@@ -49,11 +49,10 @@ The clips are made, not filmed: a real dashcam clip with the explanation display
 `render` block cannot be made as a clip and must stay screened out, and `tests/test_stimuli.py` checks that the low
 and high clip of every renderable property actually differ on screen.
 
-The renderer draws from per-frame overlay geometry (planned path, road users with outlines, boxes, distances and
-track ids, an occlusion map and the explanation ramp), in the format the OptiCarVis renderer dumps
-(`overlay_geometry_dump.py`), so OptiCarVis renders can be restyled directly. For any other clip,
-`extract_geometry.py` makes that geometry with YOLO segmentation and ByteTrack; its planned path is a straight path in
-the car's lane, so a turn needs OptiCarVis geometry or a hand-set `path_curve`.
+The renderer draws from per-frame overlay geometry: the planned path, the road users with outlines, boxes, distances
+and track ids, an occlusion map and the explanation ramp (format documented in `avprops/clip_render.py`).
+`extract_geometry.py` makes that geometry for a clip with YOLO segmentation and ByteTrack; its planned path is a
+straight path in the car's lane, so a turn needs geometry from a lane-following pipeline or a hand-set `path_curve`.
 
 ```bash
 uv sync --extra extract                                  # detection and tracking dependencies
@@ -75,7 +74,7 @@ that.
 
 The planned path of `extract_geometry.py` is straight, and it predicts only sideways movement of other road users,
 because the camera car's own speed cannot be recovered from a dashcam clip. Choose clips accordingly, or use
-OptiCarVis geometry where the path must follow a turn.
+geometry from a lane-following pipeline where the path must follow a turn.
 
 Source clips go in `data/clips/` and, like the rendered stimuli, are not in git. `make_design.py` lists the clips the
 design needs that are still missing.

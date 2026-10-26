@@ -4,9 +4,9 @@
     uv run python extract_geometry.py                      # every scene with a clip
     uv run python extract_geometry.py --scene pedestrian_crossing --device mps
 
-Writes data/geometry/<scene>_geometry.jsonl.gz and <scene>_occlusion.mp4 in the
-OptiCarVis geometry format. A scene whose ``geometry`` field in study/scenes.json
-points at OptiCarVis geometry does not need this step. See avprops/extract.py for
+Writes data/geometry/<scene>_geometry.jsonl.gz and <scene>_occlusion.mp4, the geometry
+format the clip renderer reads. A scene whose ``geometry`` field in study/scenes.json
+points at existing geometry does not need this step. See avprops/extract.py for
 what this simpler model of the scene does and does not do.
 """
 

@@ -2,13 +2,13 @@
 
 Compiled 2026-10-26. Sources were read through arXiv HTML pages, author PDFs and publisher pages. Anything marked UNVERIFIED was not checked against a primary source in this session.
 
-## Q1. OptiCarVis and related Colley / Jansen / Rukzio MOBO work on AV visualisations: parameters, objectives, iterations, results
+## Q1. Jansen et al. (2025) and related Colley / Jansen / Rukzio MOBO work on AV visualisations: parameters, objectives, iterations, results
 
 ### Takeaway
-OptiCarVis tuned **16 parameters**: 7 on/off visibility toggles plus 9 continuous alpha and size values, applied to 7 visualisation elements. Colour and position were held fixed on purpose. The parameters came from prior AV-visualisation work. On safety, trust, predictability and cognitive load, the MOBO-optimised designs beat both the one-size-fits-all expert design and the users' own custom designs. Final parameter values varied widely between participants, and a 2026 multi-session follow-up found that this between-person spread persisted. Both papers therefore point to personalised rather than uniform optima.
+Jansen et al. (2025) tuned **16 parameters**: 7 on/off visibility toggles plus 9 continuous alpha and size values, applied to 7 visualisation elements. Colour and position were held fixed on purpose. The parameters came from prior AV-visualisation work. On safety, trust, predictability and cognitive load, the MOBO-optimised designs beat both the one-size-fits-all expert design and the users' own custom designs. Final parameter values varied widely between participants, and a 2026 multi-session follow-up found that this between-person spread persisted. Both papers therefore point to personalised rather than uniform optima.
 
 ### Cited Findings
-**Citation:** Jansen, P., Colley, M., Krauß, S., Hirschle, D., Rukzio, E. (2025). *OptiCarVis: Improving Automated Vehicle Functionality Visualizations Using Bayesian Optimization to Enhance User Experience.* CHI '25, Article 85, 23 pp. DOI 10.1145/3706598.3713514. It won a CHI 2025 Honorable Mention. — [arXiv 2501.06757](https://arxiv.org/html/2501.06757v1); [Ulm HCI awards](https://www.uni-ulm.de/en/in/mi/hci/awards)
+**Citation:** Jansen, P., Colley, M., Krauß, S., Hirschle, D., Rukzio, E. (2025). CHI '25, Article 85, 23 pp. DOI 10.1145/3706598.3713514. It won a CHI 2025 Honorable Mention. — [arXiv 2501.06757](https://arxiv.org/html/2501.06757v1); [Ulm HCI awards](https://www.uni-ulm.de/en/in/mi/hci/awards)
 
 **Parameters (Table 1, quoted as reported):**
 
@@ -107,8 +107,8 @@ Two inconsistencies in the paper:
 - The authors acknowledge limits of optimising subjective measures: inconsistency, fatigue, single-item measures. — [arXiv 2607.28552](https://arxiv.org/html/2607.28552)
 
 ### Inferences
-- OptiCarVis's parameter types (visibility, opacity, size per element) are a direct precedent for a path ribbon, road-user highlights and labels. Its decision to exclude colour on semantic grounds is a precedent to cite if colour is dropped, or to argue against explicitly if colour is kept.
-- OptiCarVis used multi-objective rating-based BO, not pairwise preferential BO. Its 16-D space with 10–15 evaluations per person is very sparse coverage. That 21% early-stopped and that many elements were switched off suggests the optimiser largely explored on/off structure. A 4-parameter pairwise study is a deliberately lower-dimensional design.
+- Jansen et al.'s (2025) parameter types (visibility, opacity, size per element) are a direct precedent for a path ribbon, road-user highlights and labels. Its decision to exclude colour on semantic grounds is a precedent to cite if colour is dropped, or to argue against explicitly if colour is kept.
+- Jansen et al. (2025) used multi-objective rating-based BO, not pairwise preferential BO. Their 16-D space with 10–15 evaluations per person is very sparse coverage. That 21% early-stopped and that many elements were switched off suggests the optimiser largely explored on/off structure. A 4-parameter pairwise study is a deliberately lower-dimensional design.
 - The wide between-person spread of optima in both papers is the most direct AV-specific evidence that personalisation is warranted.
 
 ### Gaps
@@ -162,7 +162,7 @@ Human-in-the-loop BO studies in HCI typically use 2–7 parameters when each que
 
 ### Inferences
 - **Pairwise precedents:** Brochu 2007 (about 3-D) and SLS (3–7-D) set a precedent of single-digit dimensionality. Pairwise answers carry less information per query than slider or plane queries. With roughly 15–30 comparisons per crowd worker, 4 parameters sits in the well-supported range. 10+ dimensions has been viable only with richer query types or priors.
-- **Warm start:** Population priors (Meta-PO, Liao 2024 group initialisation) are a documented way to cut per-person iterations, and they suit a crowdsourced study that first pools data. OptiCarVis, however, found no final-design benefit from warm start.
+- **Warm start:** Population priors (Meta-PO, Liao 2024 group initialisation) are a documented way to cut per-person iterations, and they suit a crowdsourced study that first pools data. Jansen et al. (2025), however, found no final-design benefit from warm start.
 
 ### Gaps
 - I found no paper giving a formal rule for the number of dimensions per number of pairwise comparisons. Brochu et al. 2007 (NIPS) and González et al. 2017 *Preferential Bayesian Optimization* (ICML) were not checked directly in this session (UNVERIFIED).
@@ -171,7 +171,7 @@ Human-in-the-loop BO studies in HCI typically use 2–7 parameters when each que
 ## Q3. Evidence of individual differences in AV HMI and display preferences
 
 ### Takeaway
-There is direct experimental evidence that preferred information amount depends on initial trust (Hartwich et al. 2021), and OptiCarVis shows widely spread optimal parameter values. Evidence on age and gender is mostly about acceptance, trust and information sources rather than display-parameter preferences. I found no study linking specific display parameters to age, gender or culture.
+There is direct experimental evidence that preferred information amount depends on initial trust (Hartwich et al. 2021), and Jansen et al. (2025) shows widely spread optimal parameter values. Evidence on age and gender is mostly about acceptance, trust and information sources rather than display-parameter preferences. I found no study linking specific display parameters to age, gender or culture.
 
 ### Cited Findings
 **Hartwich, F., Hollander, C., Johannmeyer, D., Krems, J. F. (2021).** *Improving Passenger Experience and Trust in Automated Vehicles Through User-Adaptive HMIs: "The More the Better" Does Not Apply to Everyone.* Frontiers in Human Dynamics 3. DOI 10.3389/fhumd.2021.669030. — [Frontiers](https://www.frontiersin.org/journals/human-dynamics/articles/10.3389/fhumd.2021.669030/full)
@@ -187,7 +187,7 @@ There is direct experimental evidence that preferred information amount depends 
 - The authors conclude that permanent full information "cannot be recommended as a universal standard". The sample skewed young and female, so age and gender could not be analysed.
 
 **Other individual-difference findings:**
-- OptiCarVis between-participant spread (see Q1). — [arXiv 2501.06757](https://arxiv.org/html/2501.06757v1); [arXiv 2607.28552](https://arxiv.org/html/2607.28552)
+- Jansen et al. (2025) between-participant spread (see Q1). — [arXiv 2501.06757](https://arxiv.org/html/2501.06757v1); [arXiv 2607.28552](https://arxiv.org/html/2607.28552)
 - Driver age may limit how far AV explanations build trust. — [Sustainability 13(4) 1948, "Drivers' Age and Automated Vehicle Explanations", DOI 10.3390/su13041948](https://doi.org/10.3390/su13041948). Authors and details were not read (UNVERIFIED beyond the search summary).
 - Greenwood & Baldwin (2022), Frontiers in Psychology, N = 404:
   - Age affected preferred information sources about automation; gender did not.
@@ -199,20 +199,20 @@ There is direct experimental evidence that preferred information amount depends 
 - Koyama et al. 2017 explicitly set aside demographic preference differences, citing Reinecke & Gajos 2014, which showed demographic differences in visual-appeal judgements of websites. — [SLS preprint](https://koyama.xyz/project/sequential_line_search/download/preprint.pdf)
 
 ### Inferences
-- **Amount of information:** The strongest justification for personalising "amount or visibility of information" properties (number of highlights, labels, ribbon presence) is trust-dependent preference (Hartwich 2021) plus OptiCarVis's spread of on/off and size optima. Measuring propensity to trust as a covariate is well motivated.
+- **Amount of information:** The strongest justification for personalising "amount or visibility of information" properties (number of highlights, labels, ribbon presence) is trust-dependent preference (Hartwich 2021) plus Jansen et al.'s (2025) spread of on/off and size optima. Measuring propensity to trust as a covariate is well motivated.
 - **Age, gender, culture:** Effects on specific display properties are plausible but not established. They should be framed as exploratory moderators.
 
 ### Gaps
 - I found no AV-specific study tying age, gender, culture or experience to preferred values of particular visual properties (opacity, colour, label density, timing).
-- I did not obtain cross-cultural AV HMI display-preference evidence. OptiCarVis lists other cultures as future work.
+- I did not obtain cross-cultural AV HMI display-preference evidence. Jansen et al. (2025) list other cultures as future work.
 
 ## Q4. Studies that ranked or screened visual properties by importance before optimisation (expert workshops, MaxDiff/BWS, conjoint)
 
 ### Takeaway
-No reviewed BO study ran a formal importance screening (MaxDiff/BWS or conjoint) of HMI properties before optimising. Parameter sets were chosen from prior literature plus designer judgement, sometimes narrowed by small pilots, and in OptiCarVis expert input supplied default values but did not select the parameters. Conjoint and BWS have been used for AV purchase attributes and driving styles, not for in-cabin display features.
+No reviewed BO study ran a formal importance screening (MaxDiff/BWS or conjoint) of HMI properties before optimising. Parameter sets were chosen from prior literature plus designer judgement, sometimes narrowed by small pilots, and in Jansen et al. 2025 expert input supplied default values but did not select the parameters. Conjoint and BWS have been used for AV purchase attributes and driving styles, not for in-cabin display features.
 
 ### Cited Findings
-- **OptiCarVis:** parameters came from prior work. Eight experts supplied parameter values, averaged into the C2 design and the C5 warm start, but did not rank which parameters to include. — [arXiv 2501.06757](https://arxiv.org/html/2501.06757v1)
+- **Jansen et al. (2025):** parameters came from prior work. Eight experts supplied parameter values, averaged into the C2 design and the C5 warm start, but did not rank which parameters to include. — [arXiv 2501.06757](https://arxiv.org/html/2501.06757v1)
 - **Chan et al. 2022:** surveys how CHI systems fix parameter spaces: from literature and theory, 3- to 5-person pilots, divide-and-conquer, or model-based reduction. — [PDF](https://www.pokristensson.com/pubs/ChanEtAlCHI2022.pdf)
 - **Conjoint and BWS in AV research** target purchase or acceptance attributes rather than HMI elements:
   - a Japanese BWS study with 1,048 drivers on automation level, price, running cost and range — [IAEE abstract](https://iaee.org/en/publications/proceedingsabstractpdf.aspx?id=17145);
@@ -224,7 +224,7 @@ No reviewed BO study ran a formal importance screening (MaxDiff/BWS or conjoint)
 
 ### Inferences
 - A BWS or MaxDiff screening of candidate display properties (ribbon, highlights, labels, colours, timing), or a short pilot comparing importance or preference variance, would be novel relative to the BO literature reviewed here. It would also be a stronger justification than choosing from the literature alone.
-- **Selection criterion:** Chan et al.'s framing supports choosing about 4 properties by (a) prior-work relevance, (b) expected between-person variance, since only high-variance properties benefit from personalisation, and (c) independence and absence of semantic constraints, which is the logic OptiCarVis used to exclude colour.
+- **Selection criterion:** Chan et al.'s framing supports choosing about 4 properties by (a) prior-work relevance, (b) expected between-person variance, since only high-variance properties benefit from personalisation, and (c) independence and absence of semantic constraints, which is the logic Jansen et al. (2025) used to exclude colour.
 
 ### Gaps
 - I found no published MaxDiff, BWS or conjoint study on in-vehicle AV explanation-display features. The search was limited to two queries, so this absence is not conclusive.

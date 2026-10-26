@@ -1,5 +1,5 @@
 {
-  "_comment": "Driving situations used as stimuli. clip: source dashcam video (not in git). start_s/duration_s: the part of it used. event_s: when the car reacts, in source-clip seconds; the display is shown around it. why/how/manoeuvre: the explanation texts. camera: flat-ground constants for this clip at 1280x720 (check them with render_stimuli.py --calibrate). geometry: OptiCarVis or extract_geometry.py output; empty = data/geometry/<id>_geometry.jsonl.gz.",
+  "_comment": "Driving situations used as stimuli. clip: source dashcam video (not in git). start_s/duration_s: the part of it used. event_s: when the car reacts, in source-clip seconds; the display is shown around it. why/how/manoeuvre: the explanation texts. camera: flat-ground constants for this clip at 1280x720 (check them with render_stimuli.py --calibrate). geometry: overlay geometry for the clip; empty = data/geometry/<id>_geometry.jsonl.gz, written by extract_geometry.py.",
   "scenes": [
     {"id": "pedestrian_crossing", "name": "Pedestrian crossing",
      "clip": "data/clips/TuCsyBF3nHU_4630_30s.mp4", "start_s": 1.0, "duration_s": 14.0, "event_s": [9.5, 15.0],

@@ -4,9 +4,8 @@ The stimuli are real dashcam clips with an explanation overlay drawn on top. The
 overlay is drawn here, from per-frame geometry, so each property of the display can
 be set on its own and the low and high clip of a pair differ in that property only.
 
-The geometry is the format the OptiCarVis renderer dumps
-(src/render/overlay_geometry_dump.py, versions 1 and 2), which extract_geometry.py
-also writes:
+The geometry is one JSON line per frame, written by extract_geometry.py (or by any
+other pipeline that produces the same fields):
 
     <tag>_geometry.jsonl.gz   line 0: header (clip_video, fps, width, height, camera
                               constants); then one line per frame: the planned-path
@@ -56,7 +55,7 @@ SCOPES = ("relevant", "all")
 @dataclass(frozen=True)
 class Style:
     """Every renderable parameter. Defaults are the neutral baseline of the study; where
-    the literature gives one, it is the OptiCarVis expert mean (Jansen et al., CHI 2025)."""
+    the literature gives one, it is the expert mean in Jansen et al. (CHI 2025)."""
 
     # planned path
     path_opacity: float = 0.71              # 0 = no path
@@ -273,7 +272,7 @@ class ClipRenderer:
     # --- per-clip tracks
 
     def _speed_track(self) -> np.ndarray:
-        """km/h per frame from the travelled-metres phase OptiCarVis stores (v2 dumps)."""
+        """km/h per frame from the travelled-metres phase (``ribbon.phase_m``), when the geometry has it."""
         phases = [(f.get("ribbon") or {}).get("phase_m") for f in self.geometry.frames]
         if len(phases) < 2 or any(p is None for p in phases):
             return np.full(len(phases), np.nan)
@@ -423,7 +422,7 @@ class ClipRenderer:
                 if det["kind"] != "person":
                     continue
                 x0, y0, x1, y1 = (int(v) for v in det["box"])
-                # marker_size is the OptiCarVis scale (0.1-0.2), read as the marker's radius
+                # marker_size uses the 0.1-0.2 scale of Jansen et al. (2025), read as the marker's radius
                 # in metres, so it shrinks with distance like a real object
                 px_per_m = self.camera.focal / float(det["dist"]) if det.get("dist") else (y1 - y0) / 1.7
                 r = max(2, int(round(style.marker_size * px_per_m)))

@@ -1,17 +1,18 @@
 """Make overlay geometry for a source clip with a detector and tracker.
 
-Writes the OptiCarVis geometry format (see clip_render.py), so stimuli can be made
-from any clip without the OptiCarVis pipeline. It is a simpler model of the scene:
+Writes the geometry format the clip renderer reads (see clip_render.py), so stimuli can
+be made from any dashcam clip. It is a simple model of the scene:
 
 * road users: YOLO segmentation with ByteTrack ids; distance from the flat-ground
   camera model at the bottom of the box (no depth model);
 * which road users the car reacts to: those inside a corridor ahead of the car
   (``persons`` and ``vehicles`` with ``relevant``), the rest go to ``others``;
 * planned path: a straight path in the car's lane (no lane detection or visual
-  odometry), so a turn needs OptiCarVis geometry or a hand-set ``path_curve``;
+  odometry), so a turn needs a hand-set ``path_curve`` or geometry from a lane-following pipeline;
 * explanation ramp: 1 during the scene's ``event_s``, else 0.
 
-When OptiCarVis geometry exists for a clip, prefer it: its path follows lanes and turns.
+Geometry from a pipeline that follows lanes and turns can be used instead: point the
+scene's ``geometry`` field at it.
 """
 
 from __future__ import annotations
