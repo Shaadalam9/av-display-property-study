@@ -12,6 +12,10 @@ var STUDY_TEXT = {
         '<p>[Information sheet: researchers, purpose, data handling, right to withdraw — to be added after ethics approval.]</p>',
     consentQuestion: 'I have read the information above and agree to take part.',
     declined: '<h1>Thank you</h1><p>You chose not to take part. You may now close this tab.</p>',
+    comprehensionIntro:
+        '<h1>What happens next?</h1>' +
+        '<p>You will see a few short videos recorded from a car that drives itself. Each video stops before the end.</p>' +
+        '<p>After each video, choose what you think the car will do next.</p>',
     baselineIntro: 'Watch this video of a car that drives itself. The coloured overlay is the car\'s display.',
     openQuestion: 'What would you want this display to show, or show differently? Write anything that comes to mind.',
     bwsIntro:

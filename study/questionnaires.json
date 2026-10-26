@@ -1,0 +1,35 @@
+{
+  "_comment": "Questionnaires shown after the demographics. Each score is the mean of its items after reversing the items marked reversed (scale_points + 1 - answer). Check the wording against the original publications before ethics submission.",
+  "questionnaires": [
+    {
+      "id": "propensity_to_trust",
+      "name": "Propensity to trust automation",
+      "source": "Körber, M. (2019). Theoretical considerations and development of a questionnaire to measure trust in automation. In Proceedings of the 20th Congress of the International Ergonomics Association (IEA 2018), 13-30. https://doi.org/10.1007/978-3-319-96074-6_2 (subscale 'Propensity to Trust')",
+      "preamble": "Please indicate how much you agree with each statement.",
+      "labels": ["Strongly disagree", "Rather disagree", "Neither disagree nor agree", "Rather agree", "Strongly agree"],
+      "items": [
+        {"id": "ptt_1", "text": "One should be careful with unfamiliar automated systems.", "reversed": true},
+        {"id": "ptt_2", "text": "I rather trust a system than I mistrust it.", "reversed": false},
+        {"id": "ptt_3", "text": "Automated systems generally work well.", "reversed": false}
+      ]
+    },
+    {
+      "id": "ati",
+      "name": "Affinity for technology interaction (ATI)",
+      "source": "Franke, T., Attig, C., & Wessel, D. (2019). A personal resource for technology interaction: Development and validation of the Affinity for Technology Interaction (ATI) scale. International Journal of Human-Computer Interaction, 35(6), 456-467. https://doi.org/10.1080/10447318.2018.1456150",
+      "preamble": "In the following questionnaire, we will ask you about your interaction with technical systems. The term 'technical systems' refers to apps and other software applications, as well as entire digital devices (e.g., mobile phone, computer, TV, car navigation). Please indicate the degree to which you agree or disagree with the following statements.",
+      "labels": ["Completely disagree", "Largely disagree", "Slightly disagree", "Slightly agree", "Largely agree", "Completely agree"],
+      "items": [
+        {"id": "ati_1", "text": "I like to occupy myself in greater detail with technical systems.", "reversed": false},
+        {"id": "ati_2", "text": "I like testing the functions of new technical systems.", "reversed": false},
+        {"id": "ati_3", "text": "I predominantly deal with technical systems because I have to.", "reversed": true},
+        {"id": "ati_4", "text": "When I have a new technical system in front of me, I try it out intensively.", "reversed": false},
+        {"id": "ati_5", "text": "I enjoy spending time becoming acquainted with a new technical system.", "reversed": false},
+        {"id": "ati_6", "text": "It is enough for me that a technical system works; I don't care how or why.", "reversed": true},
+        {"id": "ati_7", "text": "I try to understand how a technical system exactly works.", "reversed": false},
+        {"id": "ati_8", "text": "It is enough for me to know the basic functions of a technical system.", "reversed": true},
+        {"id": "ati_9", "text": "I try to make full use of the capabilities of a technical system.", "reversed": false}
+      ]
+    }
+  ]
+}

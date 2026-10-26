@@ -11,12 +11,15 @@ from __future__ import annotations
 
 import json
 
-from avprops.common import load_config, load_properties, load_scenes, resolve, PROJECT_ROOT
+from avprops.common import load_config, load_properties, load_questionnaires, load_scenes, resolve, PROJECT_ROOT
 from avprops.design import build_design
 
 
 def required_clips(design: dict) -> list[str]:
     clips = [f"stimuli/{design['baseline_scene']}/baseline.mp4"]
+    if design["ab"]["no_display"]:
+        for scene in design["scenes"]:
+            clips += [f"stimuli/{scene['id']}/baseline.mp4", f"stimuli/{scene['id']}/none.mp4"]
     for prop in design["properties"]:
         for scene in design["ab"]["scenes"][prop["id"]]:
             for level in ("low", "high"):
@@ -30,7 +33,7 @@ def main() -> None:
     check_path = PROJECT_ROOT / "data" / "stimulus_check.json"
     checked = json.loads(check_path.read_text()) if check_path.exists() else None
     scenes = [s for s in load_scenes(config) if s.get("clip")] if checked else load_scenes(config)
-    design = build_design(config, properties, scenes, checked)
+    design = build_design(config, properties, scenes, checked, load_questionnaires(config))
 
     out = resolve(config["design_output"])
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -41,14 +44,18 @@ def main() -> None:
     print(f"  {len(properties)} properties, {len(design['scenes'])} scenes")
     print(f"  BWS: {len(design['bws']['versions'])} versions x {n_trials} trials "
           f"of {design['bws']['items_per_trial']} properties")
-    print(f"  A/B pairs per participant: {design['ab']['pairs_per_participant']}")
+    print(f"  A/B pairs per participant: {design['ab']['pairs_per_participant']} + {design['ab']['repeats']} repeated"
+          + (" + 1 display vs no display" if design["ab"]["no_display"] else ""))
+    print(f"  Comprehension questions: {len(design['comprehension'])} "
+          f"({', '.join(c['scene'] for c in design['comprehension'])})")
+    print(f"  Questionnaires: {', '.join(q['id'] for q in design['questionnaires']) or 'none'}")
     print("  " + ("Scenes per property from data/stimulus_check.json" if checked
                   else "No stimulus check yet: every scene allowed for every property"))
     for prop, allowed in design["ab"]["scenes"].items():
         if checked and len(allowed) < len(scenes):
             print(f"    {prop}: {', '.join(allowed)}")
 
-    clips = required_clips(design)
+    clips = sorted(set(required_clips(design)))
     missing = [c for c in clips if not (out.parent / c).exists()]
     print(f"  Stimulus clips: {len(clips) - len(missing)} of {len(clips)} present in public/stimuli")
     if missing:

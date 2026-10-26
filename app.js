@@ -20,7 +20,7 @@ const LOCAL_FILE = path.join(ROOT, 'data', 'entries.jsonl');
 // jsPsych and the plugins come from npm (versions pinned in package-lock.json).
 const JSPSYCH_PLUGINS = [
     'browser-check', 'call-function', 'fullscreen', 'instructions', 'maxdiff', 'preload',
-    'survey-html-form', 'survey-multi-choice', 'survey-text', 'video-button-response',
+    'survey-html-form', 'survey-likert', 'survey-multi-choice', 'survey-text', 'video-button-response',
 ];
 
 // --- STORAGE

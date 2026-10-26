@@ -73,7 +73,9 @@ def test_rows_become_one_record_per_worker(design, config):
     rec = records[0]
     assert rec["finished"] and rec["consent"]
     assert len(rec["bws"]) == len(design["bws"]["versions"][rec["bws_version"]])
-    assert len(rec["ab"]) == design["ab"]["pairs_per_participant"]
+    firsts = [p for p in rec["ab"] if not p["repeat"] and p["property"] != "no_display"]
+    assert len(firsts) == design["ab"]["pairs_per_participant"]
+    assert sum(p["repeat"] for p in rec["ab"]) == design["ab"]["repeats"]
 
 
 def test_analysis_recovers_simulated_truth(config, design):
@@ -110,3 +112,51 @@ def test_exclusions(config, design):
     result = analyse(records_from(documents, config), load_properties(config), config)
     excluded = set(result["exclusions"].query("excluded")["pid"])
     assert {"sim0000", "sim0001", "sim0002", "sim0003"} <= excluded
+
+
+def test_new_measures_are_recovered(config, design):
+    from avprops.common import load_questionnaires
+    from simulate import TRUST_MODERATED
+    design = dict(design, questionnaires=[
+        {k: q[k] for k in ("id", "name", "preamble", "labels")} | {"items": q["items"]}
+        for q in load_questionnaires(config)])
+    documents, truth = simulate(design, n=400, seed=6)
+    result = analyse(records_from(documents, config), load_properties(config), config, load_questionnaires(config))
+    assert abs(result["repeat_consistency"] - truth["_global"]["repeat_consistency"]) < 0.06
+    assert abs(result["prefers_no_display"] - truth["_global"]["prefer_no_display"]) < 0.06
+    summary = result["summary"]
+    # lower trust -> prefers the high (more information) level, for the moderated properties only
+    r = summary["high_vs_propensity_to_trust_r"]
+    moderated = r[list(TRUST_MODERATED)]
+    others = r.drop(list(TRUST_MODERATED)).dropna()
+    assert (moderated < 0).all()
+    assert moderated.mean() < -0.2
+    assert abs(others.mean()) < 0.05
+    # repeats and the no-display pair stay out of the property results
+    assert "no_display" not in summary.index
+    kept = set(result["participants"].query("not excluded")["pid"])
+    firsts = sum(1 for d in documents for row in d["data"] if row["worker_code"] in kept
+                 and row["task"] == "ab" and not row["repeat"] and row["property"] != "no_display")
+    assert summary["ab_n"].sum() == firsts
+    assert (summary["comprehension_n_low"] + summary["comprehension_n_high"]).sum() == \
+        result["n_kept"] * len(design["comprehension"])
+
+
+def test_reversed_questionnaire_items_are_flipped(config):
+    from avprops.analysis import questionnaire_scores
+    from avprops.common import load_questionnaires
+    ptt = [q for q in load_questionnaires(config) if q["id"] == "propensity_to_trust"]
+    # strongly agrees with the two trusting items, strongly disagrees with the reversed one
+    record = {"questionnaires": {"propensity_to_trust": {"ptt_1": 1, "ptt_2": 5, "ptt_3": 5}}}
+    assert questionnaire_scores(record, ptt)["propensity_to_trust"] == 5.0
+
+
+def test_low_repeat_consistency_can_exclude(config, design):
+    documents, _ = simulate(design, n=10, seed=7)
+    for row in documents[0]["data"]:
+        if row["task"] == "ab" and row.get("repeat"):
+            row["preferred_level"] = "low" if row["preferred_level"] == "high" else "high"
+    strict = dict(config, min_repeat_consistency=0.5)
+    excluded = set(analyse(records_from(documents, strict), load_properties(strict), strict)["exclusions"]
+                   .query("excluded")["pid"])
+    assert "sim0000" in excluded

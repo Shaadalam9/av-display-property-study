@@ -87,8 +87,26 @@ def ab_scenes(properties: list[dict[str, Any]], scenes: list[dict[str, Any]],
     return allowed
 
 
+def comprehension_plan(scenes: list[dict[str, Any]], allowed: dict[str, list[str]],
+                       baseline_scene: str) -> list[dict[str, Any]]:
+    """One comprehension question per scene that has one, never the baseline scene (its
+    whole clip has been seen by then). Lists the properties whose pair works in it."""
+    plan = []
+    for scene in scenes:
+        spec = scene.get("comprehension")
+        if not spec or scene["id"] == baseline_scene:
+            continue
+        properties = [p for p, ok in allowed.items() if scene["id"] in ok]
+        if properties:
+            plan.append({"scene": scene["id"], "stop_s": round(spec["stop_s"] - scene["start_s"], 2),
+                         "question": spec["question"], "options": spec["options"], "correct": spec["correct"],
+                         "properties": properties})
+    return plan
+
+
 def build_design(config: dict[str, Any], properties: list[dict[str, Any]],
-                 scenes: list[dict[str, Any]], checked: dict | None = None) -> dict[str, Any]:
+                 scenes: list[dict[str, Any]], checked: dict | None = None,
+                 questionnaires: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Build the design document the participant app loads."""
     if len(properties) < 2:
         raise ValueError("at least two screened-in properties are needed")
@@ -105,6 +123,7 @@ def build_design(config: dict[str, Any], properties: list[dict[str, Any]],
         versions.append([[ids[i] for i in block] for block in blocks])
 
     pairs = config["ab_pairs_per_participant"]
+    allowed = ab_scenes(properties, scenes, checked)
     return {
         "study_id": config["study_id"],
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -119,8 +138,17 @@ def build_design(config: dict[str, Any], properties: list[dict[str, Any]],
             "pairs_per_participant": len(ids) if pairs in (0, None) else min(pairs, len(ids)),
             "collect_ratings": bool(config["ab_collect_ratings"]),
             "scale_points": int(config["rating_scale_points"]),
-            "scenes": ab_scenes(properties, scenes, checked),
+            "scenes": allowed,
+            "repeats": int(config.get("ab_repeats", 0)),
+            "no_display": bool(config.get("ab_no_display", False)),
         },
+        "comprehension": (comprehension_plan(scenes, allowed, config["baseline_scene"])
+                          if config.get("comprehension") else []),
+        "questionnaires": [
+            {key: q[key] for key in ("id", "name", "preamble", "labels")}
+            | {"items": [{"id": i["id"], "text": i["text"]} for i in q["items"]]}
+            for q in (questionnaires or [])
+        ],
         "attention_fail_at": int(config["attention_fail_at"]),
         "stimulus_url": config.get("stimulus_url", "stimuli/"),
     }

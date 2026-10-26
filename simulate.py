@@ -23,19 +23,26 @@ from avprops.common import load_config, resolve, PROJECT_ROOT
 RATING_KEYS = ("understanding", "safety", "load")
 
 
+TRUST_MODERATED = {"show_when": -1.2, "explanation_detail": -1.0, "highlight_scope": -0.8}
+"""Log-odds change in choosing the high level per unit of standardised trust: lower-trust
+people prefer more information (Hartwich et al. 2021). Used to check the analysis finds it."""
+
+
 def simulate(design: dict, n: int, seed: int) -> tuple[list[dict], dict]:
     """Return documents ``{"data": rows}`` (one per participant) and the truth."""
     rng = np.random.default_rng(seed)
     props = [p["id"] for p in design["properties"]]
-    scenes = [s["id"] for s in design["scenes"]]
     truth = {
         p: {
             "importance": float(rng.normal(0, 1)),
             "notice_prob": float(rng.uniform(0.5, 0.98)),
             "prefer_high": float(rng.uniform(0.1, 0.9)),
+            "trust_effect": TRUST_MODERATED.get(p, 0.0),
+            "comprehension_gain": float(rng.uniform(-0.1, 0.3)),
         }
         for p in props
     }
+    truth["_global"] = {"prefer_no_display": 0.15, "repeat_consistency": 0.85}
     points = design["ab"]["scale_points"]
     documents = []
     for i in range(n):
@@ -46,29 +53,64 @@ def simulate(design: dict, n: int, seed: int) -> tuple[list[dict], dict]:
             rows.append({"trial_index": len(rows), "worker_code": code, "study_id": design["study_id"],
                          "design_generated_at": design["generated_at"], "debug": False, "task": task, **fields})
 
+        trust = float(rng.normal(0, 1))  # standardised propensity to trust
         utility = {p: truth[p]["importance"] + rng.normal(0, 0.7) for p in props}
         version = int(rng.integers(len(design["bws"]["versions"])))
         add("instructions", bws_version=version)
         add("consent", response={"consent": "Yes"}, rt=3000)
         add("demographics", response={"age": "30", "nationality": "Dutch", "country_residence": "Netherlands"})
+        for q in design["questionnaires"]:
+            n_labels = len(q["labels"])
+            answers = {}
+            for item in q["items"]:
+                # trust drives the trust questionnaire; reversed items are answered the other way
+                lean = trust if q["id"] == "propensity_to_trust" else rng.normal(0, 1)
+                lean = -lean if item["id"] in ("ptt_1", "ati_3", "ati_6", "ati_8") else lean
+                value = (n_labels - 1) / 2 + lean * (n_labels - 1) / 4 + rng.normal(0, 0.5)
+                answers[item["id"]] = int(np.clip(round(value), 0, n_labels - 1))
+            add("questionnaire", questionnaire=q["id"], response=answers)
+        for c in design["comprehension"]:
+            p = str(rng.choice(c["properties"]))
+            level = "low" if rng.random() < 0.5 else "high"
+            correct = rng.random() < 0.6 + (truth[p]["comprehension_gain"] if level == "high" else 0.0)
+            add("comprehension", scene=c["scene"], property=p, level=level, expected=c["correct"],
+                answer=c["correct"] if correct else "other", correct=bool(correct), rt=4000, hidden=False)
         add("open_question", scene=design["baseline_scene"], response={"open": "Show why it brakes."},
             rt=20000, hidden=False)
         for t, items in enumerate(design["bws"]["versions"][version]):
             noisy = {p: utility[p] + rng.gumbel() for p in items}
             add("bws", trial=t, items=items, best=max(noisy, key=noisy.get), worst=min(noisy, key=noisy.get),
                 rt=int(rng.integers(2500, 12000)), hidden=False)
-        for k, p in enumerate(rng.permutation(props)[: design["ab"]["pairs_per_participant"]]):
-            noticed = bool(rng.random() < truth[p]["notice_prob"])
-            level = ("high" if rng.random() < truth[p]["prefer_high"] else "low") if noticed \
-                else ("high" if rng.random() < 0.5 else "low")
-            a_level = "low" if rng.random() < 0.5 else "high"
-            add("ab", index=k, property=str(p), scene=scenes[k % len(scenes)], a_level=a_level,
-                b_level="high" if a_level == "low" else "low", noticed=noticed,
-                preferred_option="A" if level == a_level else "B", preferred_level=level,
-                importance=int(np.clip(round((points + 1) / 2 + 1.2 * utility[p]), 1, points)),
-                ratings={lvl: {key: int(rng.integers(1, points + 1)) for key in RATING_KEYS}
-                         for lvl in ("low", "high")},
+
+        def pair(index: int, prop: str, scene: str, level: str, noticed: bool, repeat: bool = False,
+                 levels: tuple[str, str] = ("low", "high")) -> None:
+            a_level = levels[0] if rng.random() < 0.5 else levels[1]
+            b_level = levels[1] if a_level == levels[0] else levels[0]
+            add("ab", index=index, property=prop, scene=scene, a_level=a_level, b_level=b_level, noticed=noticed,
+                preferred_option="A" if level == a_level else "B", preferred_level=level, repeat=repeat,
+                importance=int(np.clip(round((points + 1) / 2 + 1.2 * utility.get(prop, 0)), 1, points)),
+                ratings={lvl: {key: int(rng.integers(1, points + 1)) for key in RATING_KEYS} for lvl in levels},
                 rt=int(rng.integers(8000, 40000)), hidden=False)
+
+        answered = []
+        for k, p in enumerate(rng.permutation(props)[: design["ab"]["pairs_per_participant"]]):
+            p = str(p)
+            noticed = bool(rng.random() < truth[p]["notice_prob"])
+            base = np.log(truth[p]["prefer_high"] / (1 - truth[p]["prefer_high"]))
+            prob_high = 1 / (1 + np.exp(-(base + truth[p]["trust_effect"] * trust)))
+            level = ("high" if rng.random() < prob_high else "low") if noticed \
+                else ("high" if rng.random() < 0.5 else "low")
+            scene = str(rng.choice(design["ab"]["scenes"][p]))
+            pair(k, p, scene, level, noticed)
+            answered.append((p, scene, level, noticed))
+        if design["ab"]["no_display"]:
+            none = rng.random() < truth["_global"]["prefer_no_display"]
+            pair(len(answered), "no_display", design["scenes"][0]["id"], "none" if none else "baseline", True,
+                 levels=("none", "baseline"))
+        for j, (p, scene, level, noticed) in enumerate(answered[: design["ab"]["repeats"]]):
+            same = rng.random() < truth["_global"]["repeat_consistency"]
+            pair(len(answered) + 1 + j, p, scene, level if same else ("low" if level == "high" else "high"),
+                 noticed, repeat=True)
         for _ in range(5):
             add("attention", correct=bool(rng.random() < 0.97))
         add("final", response={"comment": ""})

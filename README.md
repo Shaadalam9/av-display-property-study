@@ -22,16 +22,23 @@ data in the `entries` collection of a MongoDB database. jsPsych and its plugins 
 3. Welcome, information sheet and consent. Declining ends the study.
 4. Demographics (age, nationality, country of residence, gender, driving licence, car use, experience with driver
    assistance, self-driving rides, familiarity with head-up displays).
-5. **Task C**: a baseline video of the display, then the open question "What would you want this display to show, or
+5. Questionnaires (`study/questionnaires.json`): propensity to trust automation (Körber 2019, 3 items) and affinity
+   for technology interaction (ATI, Franke et al. 2019, 9 items), to test whether preferences split by user type.
+6. **Comprehension**: one short clip per scene that has a question (not the baseline scene), showing one property at a
+   random level. The clip stops before the car acts and the participant answers "What will the car do next?". This
+   comes before any property is named, so nothing but the display tells them the answer.
+7. **Task C**: a baseline video of the display, then the open question "What would you want this display to show, or
    show differently?", asked before any property is named.
-6. **Task A**: Best-Worst Scaling (jsPsych MaxDiff). Each trial shows 4 properties; the participant picks the most and
+8. **Task A**: Best-Worst Scaling (jsPsych MaxDiff). Each trial shows 4 properties; the participant picks the most and
    least important for understanding what the car is doing and why. With the 15 screened-in properties that is 12 trials.
-7. **Task B**: A/B video pairs. For each property, the same situation with the property at its low and high level
-   (side randomised): did you notice a difference, which would you prefer while riding, how much does it matter
-   (1–7), and for each video understanding, perceived safety and mental load (1–7).
-8. Five attention checks are mixed in between the trials of Tasks A and B; three wrong answers end the study
-   (`finish_fail`).
-9. An optional final comment, then the finish page with the participant's completion code.
+9. **Task B**: A/B video pairs. For each of 10 properties, the same situation with the property at its low and high
+   level (side randomised): did you notice a difference, which would you prefer while riding, how much does it matter
+   (1–7), and for each video understanding, perceived safety and mental load (1–7). Mixed in: one pair of the display
+   vs the same clip with no display. At the end, 3 of the pairs again with the sides swapped, to measure how
+   consistent each participant is.
+10. Five attention checks are mixed in between the trials of Tasks A and B; three wrong answers end the study
+    (`finish_fail`).
+11. An optional final comment, then the finish page with the participant's completion code.
 
 Data is saved after every trial, so the answers of participants who stop early are kept. The order of trials, the BWS
 version, the scene per property and the side of each level are seeded with the worker code.
@@ -120,10 +127,14 @@ from `default.config` and `default.secret`. If there is no `config`, `default.co
 * `download_data`: export the data from MongoDB into the first of `files_heroku` before the analysis (needs
   `mongoexport` and `mongodb_uri` in `secret`).
 * `bws_items_per_trial`, `bws_appearances_per_item`, `bws_design_versions`: the BWS design.
-* `ab_pairs_per_participant`: A/B pairs per participant (0 = all properties); `ab_collect_ratings`: ask the three
+* `ab_pairs_per_participant`: A/B pairs per participant (10; 0 = all properties); `ab_repeats`: pairs repeated with
+  the sides swapped (3); `ab_no_display`: add the display vs no display pair; `comprehension`: ask "what will the car
+  do next?" in the scenes that have a `comprehension` block; `questionnaires`: which questionnaires to ask;
+  `ab_collect_ratings`: ask the three
   ratings for both videos.
 * `attention_fail_at`: wrong attention answers that end the study.
 * Exclusions: `exclude_debug`, `exclude_unfinished`, `attention_max_wrong`, `min_median_bws_rt_ms`,
+  `min_repeat_consistency` (0 = report consistency only),
   `max_hidden_ab_share` (share of A/B pairs during which the participant left the page).
 * Selection rules: `select_n` (4), `noticed_min_share` (0.70), `matters_top_fraction` (0.5),
   `disagreement_max_majority_share` (0.75), `redundancy_min_abs_r` (0.70). Set them in the pilot, then pre-register.
@@ -137,10 +148,14 @@ from `default.config` and `default.secret`. If there is no `config`, `default.co
 `mongoexport --uri <mongodb_uri> --collection entries --type json --out data/heroku_0.json`.
 
 Outputs go to `_output/` (not in git, as they hold personal data):
-* `participants.csv`: every participant, whether they finished, attention answers, excluded and why.
+* `participants.csv`: every participant: finished, attention answers, questionnaire scores, repeat consistency,
+  whether they preferred no display, comprehension, excluded and why.
 * `summary.csv`: per property the BWS score with bootstrap CI, share noticing, preference split, importance, rating
-  differences with Wilcoxon tests, and its status.
-* `redundant.csv`, `open_answers.csv` (for thematic coding of Task C) and `report.md`.
+  differences with Wilcoxon tests, comprehension after the low vs the high clip (Fisher's exact test), the
+  correlation of choosing the high level with each questionnaire score, and its status. Repeated pairs and the
+  no-display pair are left out of these.
+* `redundant.csv`, `open_answers.csv` (for thematic coding of Task C) and `report.md`, which also gives the overall
+  repeat consistency and the share of participants who preferred no display.
 
 Every property gets a status saying where it stopped: `not noticed`, `does not matter`, `consensus: fix at low/high`,
 `redundant with …`, `eligible, below cut-off`, or `selected`.

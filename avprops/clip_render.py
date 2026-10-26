@@ -588,15 +588,16 @@ def read_frames(path: Path, start: int, count: int, gray: bool = False,
         cap.release()
 
 
-def render_variants(geometry: Geometry, clip_video: Path, styles: list[tuple[str, Style]], out_dir: Path,
+def render_variants(geometry: Geometry, clip_video: Path, styles: list[tuple[str, Style | None]], out_dir: Path,
                     start_s: float = 0.0, duration_s: float | None = None, scene: dict | None = None) -> int:
     """Render several styles of one clip in a single pass over its frames, each to
-    out_dir/<name>.mp4 as H.264 (browser playable). Returns the frames per clip."""
+    out_dir/<name>.mp4 as H.264 (browser playable). A style of None writes the clip with
+    no display at all. Returns the frames per clip."""
     renderer = ClipRenderer(geometry, scene)
     start = int(round(start_s * geometry.fps))
     count = len(geometry.frames) - start if duration_s is None else int(round(duration_s * geometry.fps))
     count = max(0, min(count, len(geometry.frames) - start))
-    strengths = {name: renderer.visibility(style) for name, style in styles}
+    strengths = {name: renderer.visibility(style) if style is not None else None for name, style in styles}
     occlusions = (read_frames(geometry.occlusion_path, start, count, gray=True, size=geometry.size)
                   if geometry.occlusion_path else None)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -609,7 +610,10 @@ def render_variants(geometry: Geometry, clip_video: Path, styles: list[tuple[str
                 occlusion = next(occlusions, None) if occlusions is not None else None
                 i = start + k
                 for name, style in styles:
-                    writers[name].write(renderer.render_frame(image, i, style, float(strengths[name][i]), occlusion))
+                    if style is None:
+                        writers[name].write(image)
+                    else:
+                        writers[name].write(renderer.render_frame(image, i, style, float(strengths[name][i]), occlusion))
                 written += 1
         finally:
             for writer in writers.values():

@@ -1,5 +1,5 @@
 [project]
-name = "av-display-property-study"
+name = "display-properties"
 version = "0.1.0"
 description = "Study to select which visual properties of AV explanation displays to personalise"
 readme = "README.md"

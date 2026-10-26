@@ -1,5 +1,5 @@
 {
-  "name": "av-display-property-study",
+  "name": "display-properties",
   "version": "0.1.0",
   "description": "Crowdsourced study of which visual properties of AV explanation displays matter to passengers.",
   "main": "app.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Shaadalam9/av-display-property-study.git"
+    "url": "git+https://github.com/Shaadalam9/display-properties.git"
   },
   "author": "Md Shadab Alam",
   "license": "MIT",
@@ -21,6 +21,7 @@
     "@jspsych/plugin-maxdiff": "2.1.0",
     "@jspsych/plugin-preload": "2.1.0",
     "@jspsych/plugin-survey-html-form": "2.1.0",
+    "@jspsych/plugin-survey-likert": "2.2.0",
     "@jspsych/plugin-survey-multi-choice": "2.2.1",
     "@jspsych/plugin-survey-text": "2.1.1",
     "@jspsych/plugin-video-button-response": "2.1.1",

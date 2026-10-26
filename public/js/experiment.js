@@ -4,8 +4,10 @@
 // the server after every trial.
 //
 // Timeline: preload -> full screen -> device check -> welcome and consent -> demographics
-// -> baseline video + open question (Task C) -> Best-Worst Scaling (Task A, MaxDiff)
-// -> A/B video pairs (Task B) -> final comment -> finish page with the worker code.
+// -> questionnaires -> comprehension clips ("what will the car do next?") -> baseline video
+// + open question (Task C) -> Best-Worst Scaling (Task A, MaxDiff) -> A/B video pairs
+// (Task B), with one display vs no display pair and repeated pairs at the end -> final
+// comment -> finish page with the worker code.
 //
 // URL parameters:
 //   debug=true          log to the console, skip the device check, allow continuing
@@ -165,17 +167,42 @@ function buildTimeline(design) {
             return { property: prop, scene: allowed[(i + scene_offset) % allowed.length],
                      a_level: a_level, b_level: a_level === 'low' ? 'high' : 'low' };
         });
+    // display vs no display: one extra pair, at a random place among the others
+    if (design.ab.no_display) {
+        var nd_a = Math.random() < 0.5 ? 'none' : 'baseline';
+        ab_plan.splice(Math.floor(Math.random() * (ab_plan.length + 1)), 0, {
+            property: 'no_display', scene: design.scenes[Math.floor(Math.random() * design.scenes.length)].id,
+            a_level: nd_a, b_level: nd_a === 'none' ? 'baseline' : 'none' });
+    }
+    // repeated pairs: some pairs again at the end, sides swapped, to measure consistency
+    var repeat_plan = jsPsych.randomization.shuffle(ab_plan.filter(function(p) { return p.property !== 'no_display'; }))
+        .slice(0, design.ab.repeats)
+        .map(function(p) {
+            return { property: p.property, scene: p.scene, a_level: p.b_level, b_level: p.a_level, repeat: true };
+        });
+    var pair_plan = ab_plan.concat(repeat_plan);
+
     // stimulus_url (config): stimuli/ when the server has the clips, or the URL where they are hosted
     var clip = function(scene, name) { return design.stimulus_url + scene + '/' + name + '.mp4'; };
+    var pairClip = function(plan, level) {
+        return plan.property === 'no_display' ? clip(plan.scene, level) : clip(plan.scene, plan.property + '_' + level);
+    };
     var baseline_clip = clip(design.baseline_scene, 'baseline');
+
+    // comprehension: one clip per scene with a question, at a random level of one property
+    // that visibly differs in that scene; the clip stops before the car acts
+    var comprehension_plan = design.comprehension.map(function(c) {
+        var prop = c.properties[Math.floor(Math.random() * c.properties.length)];
+        return { scene: c.scene, property: prop, level: Math.random() < 0.5 ? 'low' : 'high', spec: c,
+                 options: jsPsych.randomization.shuffle(c.options) };
+    });
 
     var timeline = [];
 
     // --- preload, full screen, device check
     var videos = [baseline_clip];
-    ab_plan.forEach(function(p) {
-        videos.push(clip(p.scene, p.property + '_low'), clip(p.scene, p.property + '_high'));
-    });
+    ab_plan.forEach(function(p) { videos.push(pairClip(p, p.a_level), pairClip(p, p.b_level)); });
+    comprehension_plan.forEach(function(c) { videos.push(clip(c.scene, c.property + '_' + c.level)); });
     timeline.push({
         type: jsPsychPreload,
         video: videos,
@@ -205,7 +232,10 @@ function buildTimeline(design) {
         type: jsPsychInstructions,
         pages: [STUDY_TEXT.welcome, STUDY_TEXT.consent],
         show_clickable_nav: true,
-        data: { task: 'instructions', bws_version: bws_version, ab_plan: ab_plan,
+        data: { task: 'instructions', bws_version: bws_version, ab_plan: pair_plan,
+                comprehension_plan: comprehension_plan.map(function(c) {
+                    return { scene: c.scene, property: c.property, level: c.level };
+                }),
                 window_width_init: window.innerWidth, window_height_init: window.innerHeight }
     });
     timeline.push({
@@ -252,7 +282,45 @@ function buildTimeline(design) {
         ],
         data: { task: 'demographics' }
     });
+
+    // --- questionnaires (study/questionnaires.json); answers are stored as 1..n
+    design.questionnaires.forEach(function(q) {
+        timeline.push({
+            type: jsPsychSurveyLikert,
+            preamble: '<p>' + q.preamble + '</p>',
+            questions: q.items.map(function(item) {
+                return { prompt: item.text, name: item.id, labels: q.labels, required: true };
+            }),
+            data: { task: 'questionnaire', questionnaire: q.id }
+        });
+    });
     timeline.push(save_data_block);
+
+    // --- comprehension: what will the car do next? (before the participant sees the
+    // baseline clip or any property names, so nothing tells them the answer)
+    if (comprehension_plan.length) {
+        timeline.push({ type: jsPsychInstructions, pages: [STUDY_TEXT.comprehensionIntro], show_clickable_nav: true });
+    }
+    comprehension_plan.forEach(function(c, k) {
+        timeline.push({
+            type: jsPsychVideoButtonResponse,
+            stimulus: [clip(c.scene, c.property + '_' + c.level)],
+            prompt: '<p><strong>' + c.spec.question + '</strong></p>',
+            choices: c.options,
+            stop: c.spec.stop_s,
+            response_allowed_while_playing: debug,
+            width: 960,
+            data: { task: 'comprehension', index: k, scene: c.scene, property: c.property, level: c.level,
+                    options: c.options, expected: c.spec.correct },
+            on_load: flagMissingVideos,
+            on_finish: function(data) {
+                data.answer = c.options[data.response];
+                data.correct = data.answer === c.spec.correct;
+                markHidden(data);
+            }
+        });
+        timeline.push(save_data_block);
+    });
 
     // --- Task C: baseline video and open question
     timeline.push({
@@ -298,11 +366,11 @@ function buildTimeline(design) {
     });
 
     var points = design.ab.scale_points;
-    var ab_blocks = ab_plan.map(function(plan, i) {
+    var ab_blocks = pair_plan.map(function(plan, i) {
         var html =
-            '<h2>Compare the videos (' + (i + 1) + ' of ' + ab_plan.length + ')</h2>' +
-            '<div class="pair"><div><h3>Video A</h3>' + videoTag(clip(plan.scene, plan.property + '_' + plan.a_level)) + '</div>' +
-            '<div><h3>Video B</h3>' + videoTag(clip(plan.scene, plan.property + '_' + plan.b_level)) + '</div></div>' +
+            '<h2>Compare the videos (' + (i + 1) + ' of ' + pair_plan.length + ')</h2>' +
+            '<div class="pair"><div><h3>Video A</h3>' + videoTag(pairClip(plan, plan.a_level)) + '</div>' +
+            '<div><h3>Video B</h3>' + videoTag(pairClip(plan, plan.b_level)) + '</div></div>' +
             '<div class="questions">' +
             '<p class="q">Did you notice a difference between the displays in A and B?</p>' + choiceHtml('noticed', [['yes', 'Yes'], ['no', 'No']]) +
             '<p class="q">Which would you prefer to have while riding in a car that drives itself?</p>' + choiceHtml('preferred', [['A', 'Video A'], ['B', 'Video B']]) +
@@ -322,7 +390,8 @@ function buildTimeline(design) {
             type: jsPsychSurveyHtmlForm,
             html: html,
             button_label: 'Continue',
-            data: { task: 'ab', index: i, property: plan.property, scene: plan.scene, a_level: plan.a_level, b_level: plan.b_level },
+            data: { task: 'ab', index: i, property: plan.property, scene: plan.scene, a_level: plan.a_level,
+                    b_level: plan.b_level, repeat: !!plan.repeat },
             on_load: flagMissingVideos,
             on_finish: function(data) {
                 var r = data.response;
@@ -392,7 +461,8 @@ function buildTimeline(design) {
     timeline.push({ type: jsPsychFullscreen, fullscreen_mode: false });
 
     if (debug) {
-        console.log('BWS version', bws_version, 'A/B plan', ab_plan, 'attention before trials', slots);
+        console.log('BWS version', bws_version, 'A/B plan', pair_plan, 'comprehension', comprehension_plan,
+                    'attention before trials', slots);
     }
     return timeline;
 }

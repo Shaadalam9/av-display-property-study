@@ -52,3 +52,13 @@ def load_properties(config: dict[str, Any], root: Path = PROJECT_ROOT,
 def load_scenes(config: dict[str, Any], root: Path = PROJECT_ROOT) -> list[dict[str, Any]]:
     with resolve(config["scenes"], root).open(encoding="utf-8") as fh:
         return json.load(fh)["scenes"]
+
+
+def load_questionnaires(config: dict[str, Any], root: Path = PROJECT_ROOT) -> list[dict[str, Any]]:
+    """The questionnaires named in the config, in that order."""
+    with (root / "study" / "questionnaires.json").open(encoding="utf-8") as fh:
+        available = {q["id"]: q for q in json.load(fh)["questionnaires"]}
+    unknown = [q for q in config.get("questionnaires", []) if q not in available]
+    if unknown:
+        raise ValueError(f"unknown questionnaire(s) in config: {', '.join(unknown)}")
+    return [available[q] for q in config.get("questionnaires", [])]

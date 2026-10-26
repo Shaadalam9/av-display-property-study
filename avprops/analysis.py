@@ -12,6 +12,16 @@ The steps mirror the study design:
    the high-minus-low difference of each rating with a Wilcoxon signed-rank test.
 4. Selection: noticeable -> matters -> people disagree -> not redundant, then the top
    ``select_n`` by BWS score. Every property gets a status saying where it stopped.
+
+Alongside the selection:
+* consistency: share of repeated A/B pairs (sides swapped) answered with the same
+  preferred level as the first time; low consistency means apparent disagreement may
+  be noise. ``min_repeat_consistency`` can exclude participants below it;
+* display vs no display: share of participants who preferred no display at all;
+* comprehension: per property, the share answering "what will the car do next?"
+  correctly after its low vs its high clip (between participants, Fisher's exact test);
+* questionnaires: per participant scores, and per property whether choosing the high
+  level goes with the score (point-biserial r), i.e. whether preferences split by user type.
 """
 
 from __future__ import annotations
@@ -43,10 +53,44 @@ def apply_exclusions(records: list[dict], config: dict) -> tuple[list[dict], pd.
         ab = rec.get("ab", [])
         if ab and np.mean([bool(p.get("hidden")) for p in ab]) > config["max_hidden_ab_share"]:
             reasons.append("tab hidden during too many A/B pairs")
+        consistency = repeat_consistency(rec)
+        if config.get("min_repeat_consistency", 0) > 0 and consistency is not None \
+                and consistency < config["min_repeat_consistency"]:
+            reasons.append(f"repeated pairs answered consistently in {consistency:.0%}")
         rows.append({"pid": rec.get("pid"), "excluded": bool(reasons), "reasons": "; ".join(reasons)})
         if not reasons:
             kept.append(rec)
     return kept, pd.DataFrame(rows, columns=["pid", "excluded", "reasons"])
+
+
+def first_pairs(rec: dict) -> list[dict]:
+    """The A/B pairs of the properties, without repeats and the no-display pair."""
+    return [p for p in rec.get("ab", []) if not p.get("repeat") and p["property"] != "no_display"]
+
+
+def repeat_consistency(rec: dict) -> float | None:
+    """Share of repeated pairs where the same level was preferred both times."""
+    first = {p["property"]: p for p in first_pairs(rec)}
+    same = [p["preferred_level"] == first[p["property"]]["preferred_level"]
+            for p in rec.get("ab", []) if p.get("repeat") and p["property"] in first]
+    return float(np.mean(same)) if same else None
+
+
+def prefers_no_display(rec: dict) -> bool | None:
+    pair = next((p for p in rec.get("ab", []) if p["property"] == "no_display"), None)
+    return None if pair is None else pair["preferred_level"] == "none"
+
+
+def questionnaire_scores(rec: dict, questionnaires: list[dict]) -> dict[str, float]:
+    """Mean item score per questionnaire, reversed items flipped; NaN if incomplete."""
+    scores = {}
+    for q in questionnaires:
+        answers = rec.get("questionnaires", {}).get(q["id"], {})
+        n = len(q["labels"])
+        values = [(n + 1 - answers[i["id"]]) if i["reversed"] else answers[i["id"]]
+                  for i in q["items"] if i["id"] in answers]
+        scores[q["id"]] = float(np.mean(values)) if len(values) == len(q["items"]) else np.nan
+    return scores
 
 
 def bws_individual(records: list[dict], prop_ids: list[str]) -> pd.DataFrame:
@@ -97,7 +141,7 @@ def _wilcoxon_p(diffs: list[float]) -> float:
 def ab_summary(records: list[dict], prop_ids: list[str]) -> pd.DataFrame:
     by_prop: dict[str, list[dict]] = {p: [] for p in prop_ids}
     for rec in records:
-        for pair in rec.get("ab", []):
+        for pair in first_pairs(rec):
             if pair["property"] in by_prop:
                 by_prop[pair["property"]].append(pair)
 
@@ -120,6 +164,46 @@ def ab_summary(records: list[dict], prop_ids: list[str]) -> pd.DataFrame:
                      for p in pairs if p.get("ratings")]
             row[f"{key}_diff_mean"] = float(np.mean(diffs)) if diffs else np.nan
             row[f"{key}_diff_p"] = _wilcoxon_p(diffs)
+        rows[prop] = row
+    return pd.DataFrame.from_dict(rows, orient="index")
+
+
+def comprehension_summary(records: list[dict], prop_ids: list[str]) -> pd.DataFrame:
+    rows = {}
+    for prop in prop_ids:
+        answers = [c for rec in records for c in rec.get("comprehension", []) if c["property"] == prop]
+        low = [bool(c["correct"]) for c in answers if c["level"] == "low"]
+        high = [bool(c["correct"]) for c in answers if c["level"] == "high"]
+        p = np.nan
+        if low and high:
+            table = [[sum(high), len(high) - sum(high)], [sum(low), len(low) - sum(low)]]
+            p = float(stats.fisher_exact(table).pvalue)
+        rows[prop] = {
+            "comprehension_n_low": len(low), "comprehension_low": float(np.mean(low)) if low else np.nan,
+            "comprehension_n_high": len(high), "comprehension_high": float(np.mean(high)) if high else np.nan,
+            "comprehension_p": p,
+        }
+    return pd.DataFrame.from_dict(rows, orient="index")
+
+
+def preference_by_score(records: list[dict], prop_ids: list[str], questionnaires: list[dict],
+                        min_n: int = 10) -> pd.DataFrame:
+    """Point-biserial r between each questionnaire score and choosing the high level
+    (among participants who noticed the difference)."""
+    rows = {}
+    for prop in prop_ids:
+        row = {}
+        for q in questionnaires:
+            pairs = [(questionnaire_scores(rec, [q])[q["id"]], p["preferred_level"] == "high")
+                     for rec in records for p in first_pairs(rec) if p["property"] == prop and p["noticed"]]
+            pairs = [(score, high) for score, high in pairs if not np.isnan(score)]
+            r = p = np.nan
+            chose = [high for _, high in pairs]
+            if len(pairs) >= min_n and 0 < sum(chose) < len(chose) and np.std([s for s, _ in pairs]) > 0:
+                result = stats.pointbiserialr(chose, [score for score, _ in pairs])
+                r, p = float(result.statistic), float(result.pvalue)
+            row[f"high_vs_{q['id']}_r"] = r
+            row[f"high_vs_{q['id']}_p"] = p
         rows[prop] = row
     return pd.DataFrame.from_dict(rows, orient="index")
 
@@ -174,18 +258,37 @@ def select_properties(summary: pd.DataFrame, redundant: pd.DataFrame, config: di
     return summary
 
 
-def analyse(records: list[dict], properties: list[dict], config: dict) -> dict[str, Any]:
+def analyse(records: list[dict], properties: list[dict], config: dict,
+            questionnaires: list[dict] | None = None) -> dict[str, Any]:
+    questionnaires = questionnaires or []
     prop_ids = [p["id"] for p in properties]
     kept, exclusions = apply_exclusions(records, config)
     individual = bws_individual(kept, prop_ids)
     summary = bws_summary(individual, config["bootstrap_samples"], config["bootstrap_seed"])
     summary = summary.join(ab_summary(kept, prop_ids))
+    summary = summary.join(comprehension_summary(kept, prop_ids))
+    summary = summary.join(preference_by_score(kept, prop_ids, questionnaires))
     summary.insert(0, "name", [next(p["name"] for p in properties if p["id"] == i) for i in summary.index])
     redundant = redundant_pairs(individual, config["redundancy_min_abs_r"])
     summary = select_properties(summary, redundant, config)
+    participants = pd.DataFrame([{
+        "pid": r["pid"], "finished": r.get("finished"), "debug": r.get("debug"),
+        "attention_wrong": (r.get("attention") or {}).get("wrong"),
+        "bws_trials": len(r.get("bws", [])), "ab_pairs": len(first_pairs(r)),
+        "repeat_consistency": repeat_consistency(r), "prefers_no_display": prefers_no_display(r),
+        "comprehension_correct": (float(np.mean([bool(c["correct"]) for c in r["comprehension"]]))
+                                  if r.get("comprehension") else None),
+        **questionnaire_scores(r, questionnaires),
+    } for r in records]).merge(exclusions, on="pid")
+    kept_rows = participants[~participants["excluded"]]
     return {
         "n_records": len(records),
         "n_kept": len(kept),
+        "participants": participants,
+        "repeat_consistency": float(kept_rows["repeat_consistency"].dropna().mean())
+        if kept_rows["repeat_consistency"].notna().any() else np.nan,
+        "prefers_no_display": float(kept_rows["prefers_no_display"].dropna().astype(float).mean())
+        if kept_rows["prefers_no_display"].notna().any() else np.nan,
         "exclusions": exclusions,
         "summary": summary,
         "redundant": redundant,

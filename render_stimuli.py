@@ -35,7 +35,7 @@ def baseline_style(config: dict) -> Style:
 
 def variants(properties: list[dict], base: Style) -> list[tuple[str, Style]]:
     """(file name, style) for the baseline and both levels of every property."""
-    out = [("baseline", base)]
+    out: list[tuple[str, Style]] = [("baseline", base)]
     for prop in properties:
         if "render" not in prop:
             raise SystemExit(f"{prop['id']} has no render block, so it cannot be made as a clip; screen it out")
@@ -173,7 +173,8 @@ def main() -> None:
             print(f"{scene['id']}: {previews / (scene['id'] + '_properties.jpg')}")
             continue
         out_dir = PROJECT_ROOT / "public" / "stimuli" / scene["id"]
-        frames = render_variants(geometry, resolve(scene["clip"]), styles, out_dir,
+        # "none": the same clip with no display, for the display vs no display pair
+        frames = render_variants(geometry, resolve(scene["clip"]), styles + [("none", None)], out_dir,
                                  scene["start_s"], scene["duration_s"], scene)
         print(f"{scene['id']}: {len(styles)} clips of {frames} frames in {out_dir.relative_to(PROJECT_ROOT)}")
 

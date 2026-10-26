@@ -26,44 +26,6 @@ wheels = [
 ]
 
 [[package]]
-name = "av-display-property-study"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "numpy" },
-    { name = "opencv-python" },
-    { name = "pandas" },
-    { name = "pillow" },
-    { name = "scipy" },
-]
-
-[package.optional-dependencies]
-extract = [
-    { name = "lap" },
-    { name = "ultralytics" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "lap", marker = "extra == 'extract'", specifier = ">=0.5.12" },
-    { name = "numpy", specifier = ">=2.2" },
-    { name = "opencv-python", specifier = ">=4.10" },
-    { name = "pandas", specifier = ">=2.2" },
-    { name = "pillow", specifier = ">=11.0" },
-    { name = "scipy", specifier = ">=1.14" },
-    { name = "ultralytics", marker = "extra == 'extract'", specifier = "==8.4.174" },
-]
-provides-extras = ["extract"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=8.3" }]
-
-[[package]]
 name = "certifi"
 version = "2026.10.23"
 source = { registry = "https://pypi.org/simple" }
@@ -379,6 +341,44 @@ sdist = { url = "https://files.pythonhosted.org/packages/a9/95/a3dbbb5028f35eafb
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e7/05/c19819d5e3d95294a6f5947fb9b9629efb316b96de511b418c53d245aae6/cycler-0.12.1-py3-none-any.whl", hash = "sha256:85cef7cff222d8644161529808465972e51340599459b8ac3ccbac5a854e0d30", size = 8321, upload-time = "2023-10-07T05:32:16.783Z" },
 ]
+
+[[package]]
+name = "display-properties"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pandas" },
+    { name = "pillow" },
+    { name = "scipy" },
+]
+
+[package.optional-dependencies]
+extract = [
+    { name = "lap" },
+    { name = "ultralytics" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "lap", marker = "extra == 'extract'", specifier = ">=0.5.12" },
+    { name = "numpy", specifier = ">=2.2" },
+    { name = "opencv-python", specifier = ">=4.10" },
+    { name = "pandas", specifier = ">=2.2" },
+    { name = "pillow", specifier = ">=11.0" },
+    { name = "scipy", specifier = ">=1.14" },
+    { name = "ultralytics", marker = "extra == 'extract'", specifier = "==8.4.174" },
+]
+provides-extras = ["extract"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.3" }]
 
 [[package]]
 name = "filelock"
