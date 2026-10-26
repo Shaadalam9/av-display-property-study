@@ -1,5 +1,5 @@
 {
-  "_comment": "Candidate display properties from the literature review (reports/AV display property literature.md). screened_in = shown to participants. render.low / render.high are the clip renderer settings (avprops/clip_render.py Style) that make the low and high clip; everything else stays at the baseline. A property with no render block cannot be made as a clip and must stay screened out.",
+  "_comment": "Candidate display properties from the literature review (reports/AV display property literature.md). screened_in = shown to participants. render.low / render.high are the clip renderer settings (avprops/clip_render.py Style) that make the low and high clip; everything else stays at the baseline. A property with no render block cannot be made as a clip and must stay screened out. colour_dependent: the low and high clip differ mainly in hue, so participants with a colour vision deficiency may not see the difference.",
   "baseline": {
     "_comment": "Neutral display every clip starts from: expert means from Jansen et al. (CHI 2025) where available, explanation shown 3 s before the event (Du et al. 2019).",
     "show_when": "needed",
@@ -19,7 +19,7 @@
     {"id": "path_style", "element": "Planned path", "name": "Path style", "description": "Whether the path is a plain band or carries arrows that flow forward.", "low": "Plain band", "high": "Flowing arrows",
      "render": {"low": {}, "high": {"path_chevrons": true, "path_motion": true}},
      "source": "Gap: chevrons suggested, untested; Kunze et al. 2018 (AutomotiveUI) on animation", "screened_in": true, "screening_note": "Untested gap; categorical, screen only."},
-    {"id": "path_uncertainty", "element": "Planned path", "name": "Path certainty colour", "description": "Whether the path changes colour further ahead, where the car is less certain.", "low": "One colour", "high": "Colour changes with distance",
+    {"id": "path_uncertainty", "colour_dependent": true, "element": "Planned path", "name": "Path certainty colour", "description": "Whether the path changes colour further ahead, where the car is less certain.", "low": "One colour", "high": "Colour changes with distance",
      "render": {"low": {"path_uncertainty": 0.0}, "high": {"path_uncertainty": 1.0}},
      "source": "Colley et al. 2023 (IMWUT, 10.1145/3631408); Kunze et al. 2018/2019", "screened_in": true, "screening_note": "Reassures some viewers, alarms others."},
     {"id": "manoeuvre_cue", "element": "Planned manoeuvre", "name": "Manoeuvre cue", "description": "An icon and short text naming the car's next manoeuvre.", "low": "None", "high": "Icon and text, e.g. 'Turning left'",
@@ -34,7 +34,7 @@
     {"id": "highlight_style", "element": "Road users", "name": "Highlight style", "description": "How the road users are marked.", "low": "Outline", "high": "Filled shape",
      "render": {"low": {"highlight_opacity": 0.5, "highlight_style": "outline"}, "high": {"highlight_opacity": 0.5, "highlight_style": "fill"}},
      "source": "Tran et al. 2025 (ICAT-EGVE, abstract only); Colley et al. 2020", "screened_in": true, "screening_note": "Scenario-dependent best style; categorical, screen only."},
-    {"id": "class_colours", "element": "Road users", "name": "Colour by road-user type", "description": "Whether pedestrians and vehicles are highlighted in different colours.", "low": "One colour for all", "high": "Different colour per type",
+    {"id": "class_colours", "colour_dependent": true, "element": "Road users", "name": "Colour by road-user type", "description": "Whether pedestrians and vehicles are highlighted in different colours.", "low": "One colour for all", "high": "Different colour per type",
      "render": {"low": {"highlight_opacity": 0.5, "highlight_scope": "all", "class_colours": false}, "high": {"highlight_opacity": 0.5, "highlight_scope": "all", "class_colours": true}},
      "source": "Jansen et al. 2025 (TR-F) 'color-coded chaos' complaints; Jansen et al. 2025 (CHI) left colour out", "screened_in": true, "screening_note": "Both clips show all road users at a stronger highlight (0.5) so the colours are visible; they differ only in colour."},
     {"id": "marker_size", "element": "Road users", "name": "Pedestrian marker size", "description": "Size of the marker above pedestrians.", "low": "Small", "high": "Large",

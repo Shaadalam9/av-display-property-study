@@ -121,6 +121,7 @@ def test_new_measures_are_recovered(config, design):
         {k: q[k] for k in ("id", "name", "preamble", "labels")} | {"items": q["items"]}
         for q in load_questionnaires(config)])
     documents, truth = simulate(design, n=400, seed=6)
+    config = dict(config, colour_properties_without_cvd=False)  # count every pair (tested separately)
     result = analyse(records_from(documents, config), load_properties(config), config, load_questionnaires(config))
     assert abs(result["repeat_consistency"] - truth["_global"]["repeat_consistency"]) < 0.06
     assert abs(result["prefers_no_display"] - truth["_global"]["prefer_no_display"]) < 0.06
@@ -160,3 +161,27 @@ def test_low_repeat_consistency_can_exclude(config, design):
     excluded = set(analyse(records_from(documents, strict), load_properties(strict), strict)["exclusions"]
                    .query("excluded")["pid"])
     assert "sim0000" in excluded
+
+
+def test_subgroups_find_colour_vision_and_criticality_effects(config, design):
+    from avprops.common import load_questionnaires
+    from simulate import COLOUR_DEPENDENT, HIGH_CRITICALITY_EFFECT
+    documents, _ = simulate(design, n=400, seed=8)
+    records = records_from(documents, config)
+    result = analyse(records, load_properties(config), config, load_questionnaires(config), load_scenes(config))
+    sub = result["subgroups"]
+    for prop in COLOUR_DEPENDENT:
+        rows = sub[(sub["property"] == prop) & (sub["factor"] == "colour_vision")].set_index("group")
+        assert rows.loc["deficiency", "noticed_share"] < rows.loc["typical", "noticed_share"] - 0.3
+        assert rows["p_noticed_differs"].iloc[0] < 0.01
+    for prop in HIGH_CRITICALITY_EFFECT:
+        rows = sub[(sub["property"] == prop) & (sub["factor"] == "criticality")].set_index("group")
+        assert rows.loc["high", "prefer_high_share"] > rows.loc["low", "prefer_high_share"]
+        assert rows["p_prefer_high_differs"].iloc[0] < 0.05
+    # people with a colour vision deficiency are left out of the colour properties' main results
+    cvd = {r["pid"] for r in records if r["demographics"].get("colour_vision_deficiency") == "Yes"}
+    kept = set(result["participants"].query("not excluded")["pid"])
+    for prop in COLOUR_DEPENDENT:
+        counted = sum(1 for r in records if r["pid"] in kept - cvd for p in r["ab"]
+                      if p["property"] == prop and not p["repeat"])
+        assert result["summary"].loc[prop, "ab_n"] == counted

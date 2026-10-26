@@ -27,6 +27,13 @@ TRUST_MODERATED = {"show_when": -1.2, "explanation_detail": -1.0, "highlight_sco
 """Log-odds change in choosing the high level per unit of standardised trust: lower-trust
 people prefer more information (Hartwich et al. 2021). Used to check the analysis finds it."""
 
+HIGH_CRITICALITY_EFFECT = {"explanation_detail": 1.5}
+"""Log-odds change in choosing the high level in high- vs low-criticality scenes."""
+
+COLOUR_DEPENDENT = ("path_uncertainty", "class_colours")
+CVD_NOTICE_FACTOR = 0.3  # people with a colour vision deficiency notice colour-only changes this much as often
+COUNTRIES = ("US", "EG", "NL", "IN")
+
 
 def simulate(design: dict, n: int, seed: int) -> tuple[list[dict], dict]:
     """Return documents ``{"data": rows}`` (one per participant) and the truth."""
@@ -42,7 +49,8 @@ def simulate(design: dict, n: int, seed: int) -> tuple[list[dict], dict]:
         }
         for p in props
     }
-    truth["_global"] = {"prefer_no_display": 0.15, "repeat_consistency": 0.85}
+    truth["_global"] = {"prefer_no_display": 0.15, "repeat_consistency": 0.85, "cvd_share": 0.08}
+    scene_meta = {sc["id"]: sc for sc in design["scenes"]}
     points = design["ab"]["scale_points"]
     documents = []
     for i in range(n):
@@ -58,7 +66,11 @@ def simulate(design: dict, n: int, seed: int) -> tuple[list[dict], dict]:
         version = int(rng.integers(len(design["bws"]["versions"])))
         add("instructions", bws_version=version)
         add("consent", response={"consent": "Yes"}, rt=3000)
-        add("demographics", response={"age": "30", "nationality": "Dutch", "country_residence": "Netherlands"})
+        country = str(rng.choice(COUNTRIES))
+        cvd = bool(rng.random() < truth["_global"]["cvd_share"])
+        add("demographics", response={"age": "30"})
+        add("demographics", response={"nationality": country, "country_residence": country})
+        add("demographics", response={"gender": "Female", "colour_vision_deficiency": "Yes" if cvd else "No"})
         for q in design["questionnaires"]:
             n_labels = len(q["labels"])
             answers = {}
@@ -95,12 +107,15 @@ def simulate(design: dict, n: int, seed: int) -> tuple[list[dict], dict]:
         answered = []
         for k, p in enumerate(rng.permutation(props)[: design["ab"]["pairs_per_participant"]]):
             p = str(p)
-            noticed = bool(rng.random() < truth[p]["notice_prob"])
+            scene = str(rng.choice(design["ab"]["scenes"][p]))
+            notice_prob = truth[p]["notice_prob"] * (CVD_NOTICE_FACTOR if cvd and p in COLOUR_DEPENDENT else 1.0)
+            noticed = bool(rng.random() < notice_prob)
             base = np.log(truth[p]["prefer_high"] / (1 - truth[p]["prefer_high"]))
-            prob_high = 1 / (1 + np.exp(-(base + truth[p]["trust_effect"] * trust)))
+            critical = scene_meta.get(scene, {}).get("criticality") == "high"
+            logit = base + truth[p]["trust_effect"] * trust + (HIGH_CRITICALITY_EFFECT.get(p, 0.0) if critical else 0.0)
+            prob_high = 1 / (1 + np.exp(-logit))
             level = ("high" if rng.random() < prob_high else "low") if noticed \
                 else ("high" if rng.random() < 0.5 else "low")
-            scene = str(rng.choice(design["ab"]["scenes"][p]))
             pair(k, p, scene, level, noticed)
             answered.append((p, scene, level, noticed))
         if design["ab"]["no_display"]:

@@ -20,8 +20,9 @@ data in the `entries` collection of a MongoDB database. jsPsych and its plugins 
 1. The clips of the participant are preloaded and the browser switches to full screen.
 2. Device check: phones, tablets and screens smaller than 1280 × 720 px cannot continue.
 3. Welcome, information sheet and consent. Declining ends the study.
-4. Demographics (age, nationality, country of residence, gender, driving licence, car use, experience with driver
-   assistance, self-driving rides, familiarity with head-up displays).
+4. Demographics (age, nationality and country of residence from an ISO 3166 list, gender, driving licence, car use,
+   experience with driver assistance, self-driving rides, familiarity with head-up displays, colour vision
+   deficiency).
 5. Questionnaires (`study/questionnaires.json`): propensity to trust automation (Körber 2019, 3 items) and affinity
    for technology interaction (ATI, Franke et al. 2019, 9 items), to test whether preferences split by user type.
 6. **Comprehension**: one short clip per scene that has a question (not the baseline scene), showing one property at a
@@ -49,6 +50,11 @@ version, the scene per property and the side of each level are seeded with the w
 reason. `study/scenes.json` lists the driving situations. Every scene needs, under `public/stimuli/<scene id>/`:
 `baseline.mp4`, and `<property id>_low.mp4` plus `<property id>_high.mp4` for every screened-in property. The two
 clips of a pair must differ in that one property only.
+
+Each scene records the `country` it was filmed in (ISO code) and its `criticality` (low or high risk), so the
+analysis can compare preferences between risky and calm situations, and between clips from a participant's own
+country and from elsewhere. For both comparisons to work, include scenes of both criticality levels and from more
+than one country. Properties whose two clips differ mainly in hue are marked `colour_dependent`.
 
 The clips are made, not filmed: a real dashcam clip with the explanation display drawn on top by
 `avprops/clip_render.py`. Every property is a parameter of that renderer, and each property in `properties.json` has a
@@ -106,6 +112,12 @@ database. URL parameters:
 * `worker_code=<code>`: participant code to store with the data and show on the finish page. `PROLIFIC_PID` is used
   when present; otherwise a code is generated.
 
+**Sample.** To compare regions, recruit separate groups per region with the platform's screening (on Prolific:
+the "Current country of residence" prescreener, one study per region with its own quota) and keep the groups
+roughly equal, rather than relying on whoever signs up. Prolific's pool is mostly Europe and North America;
+regions where it has few participants, such as Egypt, may need another crowdsourcing platform, using the same
+`worker_code` link.
+
 The live study runs on Heroku (`Procfile`, Node.js 22), with the connection string set as the `CONNECTION` config
 variable.
 
@@ -133,6 +145,8 @@ from `default.config` and `default.secret`. If there is no `config`, `default.co
   `ab_collect_ratings`: ask the three
   ratings for both videos.
 * `attention_fail_at`: wrong attention answers that end the study.
+* `colour_properties_without_cvd`: leave participants who report a colour vision deficiency out of the main results
+  of `colour_dependent` properties (they are still compared in `subgroups.csv`).
 * Exclusions: `exclude_debug`, `exclude_unfinished`, `attention_max_wrong`, `min_median_bws_rt_ms`,
   `min_repeat_consistency` (0 = report consistency only),
   `max_hidden_ab_share` (share of A/B pairs during which the participant left the page).
@@ -154,8 +168,12 @@ Outputs go to `_output/` (not in git, as they hold personal data):
   differences with Wilcoxon tests, comprehension after the low vs the high clip (Fisher's exact test), the
   correlation of choosing the high level with each questionnaire score, and its status. Repeated pairs and the
   no-display pair are left out of these.
+* `subgroups.csv`: per property, noticing and preference in low vs high criticality scenes, in clips from the
+  participant's own country vs elsewhere, and (colour-dependent properties) with vs without a colour vision
+  deficiency, each with Fisher's exact test.
 * `redundant.csv`, `open_answers.csv` (for thematic coding of Task C) and `report.md`, which also gives the overall
-  repeat consistency and the share of participants who preferred no display.
+  repeat consistency, the share of participants who preferred no display, the countries of residence and the
+  subgroup differences.
 
 Every property gets a status saying where it stopped: `not noticed`, `does not matter`, `consensus: fix at low/high`,
 `redundant with …`, `eligible, below cut-off`, or `selected`.

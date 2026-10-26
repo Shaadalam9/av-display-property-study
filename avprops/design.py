@@ -131,7 +131,8 @@ def build_design(config: dict[str, Any], properties: list[dict[str, Any]],
             {key: p[key] for key in ("id", "element", "name", "description", "low", "high")}
             for p in properties
         ],
-        "scenes": [{"id": s["id"], "name": s["name"]} for s in scenes],
+        "scenes": [{"id": s["id"], "name": s["name"], "country": s.get("country", ""),
+                    "criticality": s.get("criticality", "")} for s in scenes],
         "baseline_scene": config["baseline_scene"],
         "bws": {"items_per_trial": k, "versions": versions},
         "ab": {

@@ -255,9 +255,7 @@ function buildTimeline(design) {
         type: jsPsychSurveyText,
         preamble: '<h1>About you</h1>',
         questions: [
-            { prompt: 'Age', name: 'age', required: true },
-            { prompt: 'Nationality', name: 'nationality', required: true },
-            { prompt: 'Country of current residence', name: 'country_residence', required: true }
+            { prompt: 'Age', name: 'age', required: true }
         ],
         data: { task: 'demographics' },
         on_load: function() {
@@ -269,6 +267,20 @@ function buildTimeline(design) {
             age.step = 1;
         }
     });
+    // countries as ISO codes (countries.js), so the analysis can match them with each scene's country
+    var countrySelect = function(name) {
+        return '<select name="' + name + '" required><option value="">Choose…</option>' +
+            COUNTRIES.map(function(c) { return '<option value="' + c[0] + '">' + c[1] + '</option>'; }).join('') +
+            '</select>';
+    };
+    timeline.push({
+        type: jsPsychSurveyHtmlForm,
+        preamble: '<h1>About you</h1>',
+        html: '<div class="questions"><p class="q">Nationality</p>' + countrySelect('nationality') +
+            '<p class="q">Country you currently live in</p>' + countrySelect('country_residence') + '</div>',
+        button_label: 'Continue',
+        data: { task: 'demographics' }
+    });
     timeline.push({
         type: jsPsychSurveyMultiChoice,
         preamble: '<h1>About you</h1>',
@@ -278,7 +290,8 @@ function buildTimeline(design) {
             { prompt: 'How often do you travel by car (as driver or passenger)?', name: 'car_frequency', options: ['Daily', 'A few times a week', 'A few times a month', 'Rarely or never'], required: true },
             { prompt: 'How much experience do you have with driver-assistance or self-driving features?', name: 'automation_experience', options: ['None', 'A little', 'Some', 'A lot'], required: true },
             { prompt: 'Have you ever ridden in a car that drives itself?', name: 'av_ride', options: ['Yes', 'No'], required: true },
-            { prompt: 'How familiar are you with head-up or augmented-reality displays in cars?', name: 'ar_familiarity', options: ['Not at all', 'Slightly', 'Moderately', 'Very'], required: true }
+            { prompt: 'How familiar are you with head-up or augmented-reality displays in cars?', name: 'ar_familiarity', options: ['Not at all', 'Slightly', 'Moderately', 'Very'], required: true },
+            { prompt: 'Do you have any form of colour vision deficiency (colour blindness)?', name: 'colour_vision_deficiency', options: ['Yes', 'No', 'Not sure'], required: true }
         ],
         data: { task: 'demographics' }
     });

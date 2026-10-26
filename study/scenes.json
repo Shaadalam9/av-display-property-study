@@ -1,5 +1,5 @@
 {
- "_comment": "Driving situations used as stimuli. clip: source dashcam video (not in git). start_s/duration_s: the part of it used. event_s: when the car reacts, in source-clip seconds; the display is shown around it. why/how/manoeuvre: the explanation texts. camera: flat-ground constants for this clip at 1280x720 (check them with render_stimuli.py --calibrate). geometry: overlay geometry for the clip; empty = data/geometry/<id>_geometry.jsonl.gz, written by extract_geometry.py. comprehension: the clip stops at stop_s (source-clip seconds) and the participant answers what the car does next; correct must match what the footage shows after stop_s. verified: whether a person checked the answer against the footage.",
+ "_comment": "Driving situations used as stimuli. clip: source dashcam video (not in git). start_s/duration_s: the part of it used. event_s: when the car reacts, in source-clip seconds; the display is shown around it. why/how/manoeuvre: the explanation texts. camera: flat-ground constants for this clip at 1280x720 (check them with render_stimuli.py --calibrate). geometry: overlay geometry for the clip; empty = data/geometry/<id>_geometry.jsonl.gz, written by extract_geometry.py. comprehension: the clip stops at stop_s (source-clip seconds) and the participant answers what the car does next; correct must match what the footage shows after stop_s. verified: whether a person checked the answer against the footage. country: ISO 3166 code of where the clip was filmed (compared with participants' country of residence). criticality: low or high, how risky the situation is; the analysis compares preferences between the two.",
  "scenes": [
   {
    "id": "pedestrian_crossing",
@@ -32,7 +32,9 @@
      "Turn right"
     ],
     "correct": "Keep waiting until the pedestrians have crossed"
-   }
+   },
+   "country": "US",
+   "criticality": "high"
   },
   {
    "id": "braking_in_traffic",
@@ -64,7 +66,9 @@
      "Change to the left lane"
     ],
     "correct": "Keep following the traffic in its lane"
-   }
+   },
+   "country": "EG",
+   "criticality": "low"
   },
   {
    "id": "unexpected_obstacle",
@@ -96,7 +100,9 @@
      "Swerve into the other lane"
     ],
     "correct": "Keep driving slowly in its lane"
-   }
+   },
+   "country": "EG",
+   "criticality": "high"
   },
   {
    "id": "intersection_turn",
@@ -117,7 +123,9 @@
     "focal_px": 1000.0,
     "cam_height_m": 1.3
    },
-   "geometry": ""
+   "geometry": "",
+   "country": "",
+   "criticality": "low"
   }
  ]
 }

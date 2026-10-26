@@ -1,6 +1,6 @@
 {
  "study_id": "av_display_properties_v1",
- "generated_at": "2026-10-26T06:49:35+00:00",
+ "generated_at": "2026-10-26T06:57:39+00:00",
  "properties": [
   {
    "id": "path_opacity",
@@ -126,15 +126,21 @@
  "scenes": [
   {
    "id": "pedestrian_crossing",
-   "name": "Pedestrian crossing"
+   "name": "Pedestrian crossing",
+   "country": "US",
+   "criticality": "high"
   },
   {
    "id": "braking_in_traffic",
-   "name": "Braking behind traffic"
+   "name": "Braking behind traffic",
+   "country": "EG",
+   "criticality": "low"
   },
   {
    "id": "unexpected_obstacle",
-   "name": "Pedestrian stepping into the road"
+   "name": "Pedestrian stepping into the road",
+   "country": "EG",
+   "criticality": "high"
   }
  ],
  "baseline_scene": "pedestrian_crossing",

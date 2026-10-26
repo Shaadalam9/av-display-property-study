@@ -21,7 +21,12 @@ Alongside the selection:
 * comprehension: per property, the share answering "what will the car do next?"
   correctly after its low vs its high clip (between participants, Fisher's exact test);
 * questionnaires: per participant scores, and per property whether choosing the high
-  level goes with the score (point-biserial r), i.e. whether preferences split by user type.
+  level goes with the score (point-biserial r), i.e. whether preferences split by user type;
+* subgroups: per property, noticing and preference in low vs high criticality scenes, in
+  clips from the participant's own country vs elsewhere, and (for colour-dependent
+  properties) with vs without a colour vision deficiency, with Fisher's exact test.
+  With ``colour_properties_without_cvd`` the main results of colour-dependent properties
+  leave out participants who report a colour vision deficiency.
 """
 
 from __future__ import annotations
@@ -138,11 +143,18 @@ def _wilcoxon_p(diffs: list[float]) -> float:
     return float(stats.wilcoxon(diffs).pvalue)
 
 
-def ab_summary(records: list[dict], prop_ids: list[str]) -> pd.DataFrame:
+def has_cvd(rec: dict) -> bool:
+    return (rec.get("demographics") or {}).get("colour_vision_deficiency") == "Yes"
+
+
+def ab_summary(records: list[dict], prop_ids: list[str], skip_cvd_for: set[str] | None = None) -> pd.DataFrame:
+    """A/B results per property. Participants who report a colour vision deficiency are
+    left out of the properties in ``skip_cvd_for``."""
+    skip_cvd_for = skip_cvd_for or set()
     by_prop: dict[str, list[dict]] = {p: [] for p in prop_ids}
     for rec in records:
         for pair in first_pairs(rec):
-            if pair["property"] in by_prop:
+            if pair["property"] in by_prop and not (pair["property"] in skip_cvd_for and has_cvd(rec)):
                 by_prop[pair["property"]].append(pair)
 
     rows = {}
@@ -208,6 +220,60 @@ def preference_by_score(records: list[dict], prop_ids: list[str], questionnaires
     return pd.DataFrame.from_dict(rows, orient="index")
 
 
+def _group_of(factor: str, rec: dict, pair: dict, scenes: dict[str, dict]) -> str | None:
+    scene = scenes.get(pair["scene"], {})
+    if factor == "criticality":
+        return scene.get("criticality") or None
+    if factor == "familiarity":
+        home = (rec.get("demographics") or {}).get("country_residence")
+        if not home or not scene.get("country"):
+            return None
+        return "own country" if home == scene["country"] else "other country"
+    if factor == "colour_vision":
+        answer = (rec.get("demographics") or {}).get("colour_vision_deficiency")
+        return {"Yes": "deficiency", "No": "typical"}.get(answer)
+    raise ValueError(factor)
+
+
+def subgroup_summary(records: list[dict], properties: list[dict], scenes: list[dict]) -> pd.DataFrame:
+    """Noticing and preference per property in two groups of a factor, with Fisher's exact
+    test on choosing the high level (participants who noticed)."""
+    scene_meta = {s["id"]: s for s in scenes}
+    rows = []
+    for prop in properties:
+        factors = ["criticality", "familiarity"] + (["colour_vision"] if prop.get("colour_dependent") else [])
+        for factor in factors:
+            groups: dict[str, list[dict]] = {}
+            for rec in records:
+                for pair in first_pairs(rec):
+                    if pair["property"] == prop["id"]:
+                        group = _group_of(factor, rec, pair, scene_meta)
+                        if group:
+                            groups.setdefault(group, []).append(pair)
+            stats_by_group, seen_by_group = {}, {}
+            for group, pairs in sorted(groups.items()):
+                noticed = [p for p in pairs if p["noticed"]]
+                high = sum(p["preferred_level"] == "high" for p in noticed)
+                stats_by_group[group] = (len(noticed), high)
+                seen_by_group[group] = (len(pairs), len(noticed))
+                rows.append({"property": prop["id"], "factor": factor, "group": group, "n": len(pairs),
+                             "noticed_share": float(np.mean([p["noticed"] for p in pairs])),
+                             "pref_n": len(noticed),
+                             "prefer_high_share": high / len(noticed) if noticed else np.nan})
+            p_pref = p_seen = np.nan
+            if len(stats_by_group) == 2:
+                (n1, h1), (n2, h2) = stats_by_group.values()
+                if n1 > 0 and n2 > 0:
+                    p_pref = float(stats.fisher_exact([[h1, n1 - h1], [h2, n2 - h2]]).pvalue)
+                (t1, s1), (t2, s2) = seen_by_group.values()
+                p_seen = float(stats.fisher_exact([[s1, t1 - s1], [s2, t2 - s2]]).pvalue)
+            for row in rows[len(rows) - len(stats_by_group):]:
+                row["p_noticed_differs"] = p_seen
+                row["p_prefer_high_differs"] = p_pref
+    return pd.DataFrame(rows, columns=["property", "factor", "group", "n", "noticed_share", "p_noticed_differs",
+                                       "pref_n", "prefer_high_share", "p_prefer_high_differs"])
+
+
 def redundant_pairs(individual: pd.DataFrame, min_abs_r: float, min_n: int = 10) -> pd.DataFrame:
     """Property pairs whose individual BWS scores correlate strongly across participants."""
     rows = []
@@ -259,13 +325,15 @@ def select_properties(summary: pd.DataFrame, redundant: pd.DataFrame, config: di
 
 
 def analyse(records: list[dict], properties: list[dict], config: dict,
-            questionnaires: list[dict] | None = None) -> dict[str, Any]:
+            questionnaires: list[dict] | None = None, scenes: list[dict] | None = None) -> dict[str, Any]:
     questionnaires = questionnaires or []
     prop_ids = [p["id"] for p in properties]
     kept, exclusions = apply_exclusions(records, config)
     individual = bws_individual(kept, prop_ids)
     summary = bws_summary(individual, config["bootstrap_samples"], config["bootstrap_seed"])
-    summary = summary.join(ab_summary(kept, prop_ids))
+    skip_cvd = ({p["id"] for p in properties if p.get("colour_dependent")}
+                if config.get("colour_properties_without_cvd") else set())
+    summary = summary.join(ab_summary(kept, prop_ids, skip_cvd))
     summary = summary.join(comprehension_summary(kept, prop_ids))
     summary = summary.join(preference_by_score(kept, prop_ids, questionnaires))
     summary.insert(0, "name", [next(p["name"] for p in properties if p["id"] == i) for i in summary.index])
@@ -278,6 +346,9 @@ def analyse(records: list[dict], properties: list[dict], config: dict,
         "repeat_consistency": repeat_consistency(r), "prefers_no_display": prefers_no_display(r),
         "comprehension_correct": (float(np.mean([bool(c["correct"]) for c in r["comprehension"]]))
                                   if r.get("comprehension") else None),
+        "country_residence": (r.get("demographics") or {}).get("country_residence"),
+        "nationality": (r.get("demographics") or {}).get("nationality"),
+        "colour_vision_deficiency": (r.get("demographics") or {}).get("colour_vision_deficiency"),
         **questionnaire_scores(r, questionnaires),
     } for r in records]).merge(exclusions, on="pid")
     kept_rows = participants[~participants["excluded"]]
@@ -291,6 +362,7 @@ def analyse(records: list[dict], properties: list[dict], config: dict,
         if kept_rows["prefers_no_display"].notna().any() else np.nan,
         "exclusions": exclusions,
         "summary": summary,
+        "subgroups": subgroup_summary(kept, properties, scenes or []),
         "redundant": redundant,
         "open_answers": pd.DataFrame(
             [{"pid": r["pid"], "baseline": (r.get("open_question") or {}).get("text", ""),

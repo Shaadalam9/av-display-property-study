@@ -36,3 +36,5 @@ body {
 /* finish pages */
 .finish { max-width: 720px; margin: 80px auto; text-align: left; }
 .code { font-family: ui-monospace, Menlo, monospace; font-size: 22px; padding: 8px 12px; background: #f1f3f4; border-radius: 6px; user-select: all; }
+
+.questions select { font: inherit; padding: 6px 8px; min-width: 320px; }

@@ -12,6 +12,8 @@ Writes to the output folder:
                        consistency, display vs no display, comprehension, excluded and why
     summary.csv        one row per property: BWS score + CI, A/B results, status
     redundant.csv      property pairs judged alike (|r| >= redundancy_min_abs_r)
+    subgroups.csv      noticing and preference per property by scene criticality, own vs
+                       other country, and colour vision (colour-dependent properties)
     open_answers.csv   the open-question answers, for thematic coding
     report.md          the selected properties and where every other one stopped
 """
@@ -24,7 +26,7 @@ from pathlib import Path
 import pandas as pd
 
 from avprops.analysis import analyse
-from avprops.common import load_config, load_properties, load_questionnaires, load_secret, resolve
+from avprops.common import load_config, load_properties, load_questionnaires, load_scenes, load_secret, resolve
 from avprops.crowd import download, read_rows, rows_to_records
 
 
@@ -86,6 +88,35 @@ def write_report(result: dict, config: dict, path: Path) -> None:
             cells = [f"{num(row[c], '+.2f')} (p={num(row[c[:-2] + '_p'], '.3f')})" for c in score_cols]
             lines.append(f"| {row['name']} | " + " | ".join(cells) + " |")
         lines.append("")
+    kept_people = result["participants"].query("not excluded")
+    countries = kept_people["country_residence"].dropna().value_counts()
+    sub = result["subgroups"]
+    lines += ["## Subgroups", "",
+              f"Countries of residence (kept participants): "
+              + (", ".join(f"{code} {n}" for code, n in countries.head(10).items()) or "not recorded")
+              + (f", and {len(countries) - 10} more" if len(countries) > 10 else "") + ".",
+              f"Colour vision deficiency reported by "
+              f"{(kept_people['colour_vision_deficiency'] == 'Yes').sum()} of {len(kept_people)}"
+              + ("; they are left out of the main results of colour-dependent properties."
+                 if config.get("colour_properties_without_cvd") else "."), ""]
+    n_tests = 2 * len(sub.drop_duplicates(["property", "factor"]))
+    differs = sub[(sub["p_prefer_high_differs"] < 0.05) | (sub["p_noticed_differs"] < 0.05)]
+    differs = differs.drop_duplicates(["property", "factor"])
+    if differs.empty:
+        lines.append("No property differed between subgroups at p < .05 (full table in subgroups.csv).")
+    else:
+        lines += [f"Differences between groups at p < .05 (full table in subgroups.csv). The p values are not "
+                  f"corrected: with {n_tests} tests, about {0.05 * n_tests:.0f} will fall below .05 by chance, so "
+                  "trust an effect that repeats across properties or matches a prediction more than a single hit.",
+                  "", "| Property | Factor | Noticed | p | Chose high (of those who noticed) | p |",
+                  "| --- | --- | --- | --- | --- | --- |"]
+        for row in differs.itertuples():
+            groups = sub[(sub["property"] == row.property) & (sub["factor"] == row.factor)]
+            seen = ", ".join(f"{g.group} {num(g.noticed_share, '.0%')} (n={g.n})" for g in groups.itertuples())
+            high = ", ".join(f"{g.group} {num(g.prefer_high_share, '.0%')} (n={g.pref_n})" for g in groups.itertuples())
+            lines.append(f"| {summary.loc[row.property, 'name']} | {row.factor} | {seen} | "
+                         f"{num(row.p_noticed_differs, '.3f')} | {high} | {num(row.p_prefer_high_differs, '.3f')} |")
+    lines.append("")
     lines += ["Rules (from the config): noticed by at least "
               f"{config['noticed_min_share']:.0%}; in the top {config['matters_top_fraction']:.0%} by BWS "
               "or a rating effect at p < .05; majority preference at most "
@@ -114,13 +145,14 @@ def main() -> None:
     records = rows_to_records(read_rows(files), config["attention_max_wrong"])
     if not records:
         raise SystemExit("no participant data in " + ", ".join(str(f) for f in files))
-    result = analyse(records, load_properties(config), config, load_questionnaires(config))
+    result = analyse(records, load_properties(config), config, load_questionnaires(config), load_scenes(config))
 
     out = resolve(args.out)
     out.mkdir(parents=True, exist_ok=True)
     result["participants"].to_csv(out / "participants.csv", index=False)
     result["summary"].to_csv(out / "summary.csv", index_label="property")
     result["redundant"].to_csv(out / "redundant.csv", index=False)
+    result["subgroups"].to_csv(out / "subgroups.csv", index=False)
     result["open_answers"].to_csv(out / "open_answers.csv", index=False)
     write_report(result, config, out / "report.md")
 
