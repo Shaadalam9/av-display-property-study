@@ -70,8 +70,25 @@ def bws_version(n_items: int, items_per_trial: int, appearances_per_item: int,
     return [list(rng.permutation(best[t]).tolist()) for t in order]
 
 
+def ab_scenes(properties: list[dict[str, Any]], scenes: list[dict[str, Any]],
+              checked: dict[str, dict[str, dict]] | None) -> dict[str, list[str]]:
+    """Scenes in which each property's A/B pair visibly differs, from render_stimuli.py
+    --check. Without a check every scene is allowed."""
+    scene_ids = [s["id"] for s in scenes]
+    if not checked:
+        return {p["id"]: scene_ids for p in properties}
+    allowed = {}
+    for p in properties:
+        ok = [s for s in scene_ids if checked.get(s, {}).get(p["id"], {}).get("ok")]
+        if not ok:
+            raise ValueError(f"{p['id']}: its low and high clips differ too little in every checked scene; "
+                             "add a scene that has what it acts on, or screen it out")
+        allowed[p["id"]] = ok
+    return allowed
+
+
 def build_design(config: dict[str, Any], properties: list[dict[str, Any]],
-                 scenes: list[dict[str, Any]]) -> dict[str, Any]:
+                 scenes: list[dict[str, Any]], checked: dict | None = None) -> dict[str, Any]:
     """Build the design document the participant app loads."""
     if len(properties) < 2:
         raise ValueError("at least two screened-in properties are needed")
@@ -102,6 +119,8 @@ def build_design(config: dict[str, Any], properties: list[dict[str, Any]],
             "pairs_per_participant": len(ids) if pairs in (0, None) else min(pairs, len(ids)),
             "collect_ratings": bool(config["ab_collect_ratings"]),
             "scale_points": int(config["rating_scale_points"]),
+            "scenes": ab_scenes(properties, scenes, checked),
         },
         "attention_fail_at": int(config["attention_fail_at"]),
+        "stimulus_url": config.get("stimulus_url", "stimuli/"),
     }

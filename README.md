@@ -25,7 +25,7 @@ data in the `entries` collection of a MongoDB database. jsPsych and its plugins 
 5. **Task C**: a baseline video of the display, then the open question "What would you want this display to show, or
    show differently?", asked before any property is named.
 6. **Task A**: Best-Worst Scaling (jsPsych MaxDiff). Each trial shows 4 properties; the participant picks the most and
-   least important for understanding what the car is doing and why. With 21 properties that is 16 trials.
+   least important for understanding what the car is doing and why. With the 15 screened-in properties that is 12 trials.
 7. **Task B**: A/B video pairs. For each property, the same situation with the property at its low and high level
    (side randomised): did you notice a difference, which would you prefer while riding, how much does it matter
    (1–7), and for each video understanding, perceived safety and mental load (1–7).
@@ -37,10 +37,48 @@ Data is saved after every trial, so the answers of participants who stop early a
 version, the scene per property and the side of each level are seeded with the worker code.
 
 ### Stimuli
-`study/properties.json` lists the candidate properties (from the literature review), `study/scenes.json` the driving
-situations. Every scene needs, under `public/stimuli/<scene id>/`: `baseline.mp4`, and `<property id>_low.mp4` plus
-`<property id>_high.mp4` for every screened-in property. The two clips of a pair must differ in that one property only.
-The clips are not in git; `make_design.py` lists the ones that are missing.
+`study/properties.json` lists the candidate properties from the literature review
+(`reports/AV display property literature.md`): the 15 screened in, 4 reserves, and the ones fixed or excluded with the
+reason. `study/scenes.json` lists the driving situations. Every scene needs, under `public/stimuli/<scene id>/`:
+`baseline.mp4`, and `<property id>_low.mp4` plus `<property id>_high.mp4` for every screened-in property. The two
+clips of a pair must differ in that one property only.
+
+The clips are made, not filmed: a real dashcam clip with the explanation display drawn on top by
+`avprops/clip_render.py`. Every property is a parameter of that renderer, and each property in `properties.json` has a
+`render` block with the settings of its low and high clip; everything else stays at the `baseline`. A property without a
+`render` block cannot be made as a clip and must stay screened out, and `tests/test_stimuli.py` checks that the low
+and high clip of every renderable property actually differ on screen.
+
+The renderer draws from per-frame overlay geometry (planned path, road users with outlines, boxes, distances and
+track ids, an occlusion map and the explanation ramp), in the format the OptiCarVis renderer dumps
+(`overlay_geometry_dump.py`), so OptiCarVis renders can be restyled directly. For any other clip,
+`extract_geometry.py` makes that geometry with YOLO segmentation and ByteTrack; its planned path is a straight path in
+the car's lane, so a turn needs OptiCarVis geometry or a hand-set `path_curve`.
+
+```bash
+uv sync --extra extract                                  # detection and tracking dependencies
+uv run python extract_geometry.py --device mps           # data/geometry/<scene>_geometry.jsonl.gz (cuda:0 on a GPU host)
+uv run python render_stimuli.py --calibrate              # check each scene's camera constants
+uv run python render_stimuli.py --preview                # a still of every clip, as a contact sheet
+uv run python render_stimuli.py --check                  # how much each pair differs in each scene
+uv run python make_design.py                             # uses the check to pick scenes per property
+uv run python render_stimuli.py                          # the clips, as H.264, into public/stimuli/
+```
+
+A property can only differ in a scene that has what it acts on: other road users' paths need people moving sideways,
+colour by type needs vehicles, "when shown" needs an event with a few seconds before it. `--check` measures, per scene,
+the share of pixels that differ between the low and high clip over the whole clip and flags pairs below 0.2% as
+`WEAK`. It saves the result to `data/stimulus_check.json`; `make_design.py` then lets each property's A/B pair use
+only the scenes where it passed, and stops with an error if a property passes in none. The threshold is a screen for
+pairs with nothing to show, not proof that people notice the difference; the "did you notice" answers in the pilot do
+that.
+
+The planned path of `extract_geometry.py` is straight, and it predicts only sideways movement of other road users,
+because the camera car's own speed cannot be recovered from a dashcam clip. Choose clips accordingly, or use
+OptiCarVis geometry where the path must follow a turn.
+
+Source clips go in `data/clips/` and, like the rendered stimuli, are not in git. `make_design.py` lists the clips the
+design needs that are still missing.
 
 After any change to the properties, scenes or settings, regenerate the design:
 

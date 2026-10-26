@@ -16,7 +16,6 @@
 'use strict';
 
 var SAVE_DATA = true;  // save data or not
-var STIMULUS_PREFIX = 'stimuli/';  // folder with the videos, see make_design.py
 
 function getUrlParameter(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -155,16 +154,19 @@ function buildTimeline(design) {
     // --- per-participant assignment
     var bws_version = Math.floor(Math.random() * design.bws.versions.length);
     var bws_trials = design.bws.versions[bws_version];
-    var scene_ids = design.scenes.map(function(s) { return s.id; });
-    var scene_offset = Math.floor(Math.random() * scene_ids.length);
+    // each property's pair uses one of the scenes where its clips visibly differ
+    // (design.ab.scenes, from render_stimuli.py --check)
+    var scene_offset = Math.floor(Math.random() * design.scenes.length);
     var ab_plan = jsPsych.randomization.shuffle(Object.keys(props))
         .slice(0, design.ab.pairs_per_participant)
         .map(function(prop, i) {
+            var allowed = design.ab.scenes[prop];
             var a_level = Math.random() < 0.5 ? 'low' : 'high';
-            return { property: prop, scene: scene_ids[(i + scene_offset) % scene_ids.length],
+            return { property: prop, scene: allowed[(i + scene_offset) % allowed.length],
                      a_level: a_level, b_level: a_level === 'low' ? 'high' : 'low' };
         });
-    var clip = function(scene, name) { return STIMULUS_PREFIX + scene + '/' + name + '.mp4'; };
+    // stimulus_url (config): stimuli/ when the server has the clips, or the URL where they are hosted
+    var clip = function(scene, name) { return design.stimulus_url + scene + '/' + name + '.mp4'; };
     var baseline_clip = clip(design.baseline_scene, 'baseline');
 
     var timeline = [];

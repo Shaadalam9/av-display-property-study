@@ -23,3 +23,6 @@ __pycache__/
 .claude/settings.local.json
 
 .DS_Store
+
+# Model weights (downloaded by ultralytics)
+*.pt
